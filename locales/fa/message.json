@@ -1,0 +1,69 @@
+{
+    "lang":"fa",
+    "0":{
+        "title":"به متا کپی خوش آمدید",
+        "content":"کاربر گرامی {username}، حساب شما با موفقیت ایجاد شد. اکنون میتوانید با ارسال پیام به مدیر با افزایش بالانس خود شروع به ترید کنید"
+        
+    },
+    "1":{
+        "title":"معامله باز شد",
+        "content":"معامله شما با قیمت {trade_price} با تیکت {trade_ticket} باز شد. برای اطلاعات بیشتر به معاملات باز مراجعه کنید , بالانس: {balance}, موجودی: {equity}, مارجین: {margin}, مارجین آزاد: {free_margin}, سطح مارجین: {margin_level}"
+    },
+    "2":{
+        "title":"معامله بسته شد",
+        "content":"معامله شما در قیمت {trade_exit} با تیکت {trade_ticket} بسته شد. سود شما: {trade_profit} , بالانس: {balance}, موجودی: {equity}, مارجین: {margin}, مارجین آزاد: {free_margin}, سطح مارجین: {margin_level}"
+    },
+    "3":{
+        "title":"معامله تغییر کرد",
+        "content":"مقادیر معامله {trade_ticket} نغییر کرد.قیمت {trade_price} حد ضرر {trade_sl}   حد سود {trade_tp}"
+    },
+    "4":{
+        "title":"سفارش ایجاد شد",
+        "content":"سفارش {order_id} در قیمت {order_price} ایجاد شد , بالانس: {balance}, موجودی: {equity}, مارجین: {margin}, مارجین آزاد: {free_margin}, سطح مارجین: {margin_level}"
+    },
+    "5":{
+        "title":"سفارش بسته شد",
+        "content":"سفارش بسته شد , بالانس: {balance}, موجودی: {equity}, مارجین: {margin}, مارجین آزاد: {free_margin}, سطح مارجین: {margin_level}"
+    },
+    "6":{
+        "title":"سفارش حذف شد",
+        "content":"شفارش حذف شد. موجودی برای ایجاد معامله کافی نیست, بالانس: {balance}, موجودی: {equity}, مارجین: {margin}, مارجین آزاد: {free_margin}, سطح مارجین: {margin_level}"
+    },
+    "7":{
+        "title":"سفارش تغییر کرد",
+        "content":"مقادیر معامله {order_id} نغییر کرد.قیمت {order_price} حد ضرر {order_sl}   حد سود {order_tp}"
+    },
+    "10":{
+        "title":"",
+        "content":""
+    },
+    "20":{
+        "title":"بالانس افزایش یافت",
+        "content":"حساب شما به مقدار {increase}$ شارژ شد. موجودی فعلی شما {balance}$ میباشد., بالانس: {balance}, موجودی: {equity}, مارجین: {margin}, مارجین آزاد: {free_margin}, سطح مارجین: {margin_level}"
+    },
+    "21":{
+        "title":"برداشت وجه تایید شد",
+        "content":"درخواست شما برای برداشت {withdraw_amount}$ تایید شد و مقدار مد نظر به حساب بانکی شما واریز میشود"
+    },
+    "22":{
+        "title":"برداشت وجه تکمیل شد",
+        "content":"برداشت با موفقیت انجام شد. معادل ریالی {withdraw_amount} دلار به حساب بانکی شما انتقال یافت, بالانس: {balance}, موجودی: {equity}, مارجین: {margin}, مارجین آزاد: {free_margin}, سطح مارجین: {margin_level}"
+    },
+    "23":{
+        "title":"برداشت وجه تایید نشد",
+        "content":"درخواست برداشت وجه شما تایید نشد، با شما تماس میگیریم"
+    },
+    "99":{
+        "title":"حساب شما لیکوید شد",
+        "content":"متاسفانه باید بگوییم که حساب شما لیکوید شد و دیگر قادر به ترید نمیباشید. برای ادامه ترید لطفا حساب خود را شارژ کنید , بالانس: {balance}, موجودی: {equity}, مارجین: {margin}, مارجین آزاد: {free_margin}, سطح مارجین: {margin_level}"
+    },
+    "88":{
+        "title":"Callmargin Alert",
+        "content":"Your marjin level is less than {margin_level_trade}"
+    },
+    "lose":"ضرر",
+    "profit": "سود",
+    "price": "قیمت",
+    "pair": "نماد"
+
+}

@@ -1,0 +1,248 @@
+import React, { useEffect, useState } from 'react';
+import Button from '@mui/material/Button';
+import { styled } from '@mui/material/styles';
+import Dialog from '@mui/material/Dialog';
+import DialogTitle from '@mui/material/DialogTitle';
+import DialogContent from '@mui/material/DialogContent';
+import DialogActions from '@mui/material/DialogActions';
+import IconButton from '@mui/material/IconButton';
+import CloseIcon from '@mui/icons-material/Close';
+import Box from '@mui/material/Box';
+import TextField from '@mui/material/TextField';
+import { MdEditDocument } from 'react-icons/md';
+import { toast } from 'sonner';
+import { useTheme } from 'next-themes';
+import { useAppContext } from "@/context";
+import BorderColorIcon from '@mui/icons-material/BorderColor';
+import TokenIcon from '@mui/icons-material/Token';
+
+const BootstrapDialog = styled(Dialog)(({ theme }) => ({
+    '& .MuiDialogContent-root': {
+        padding: theme.spacing(2),
+    },
+    '& .MuiDialogActions-root': {
+        padding: theme.spacing(1),
+    },
+}));
+
+export default function ActiveTokens({ dict }) {
+    const [open, setOpen] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
+    const { theme } = useTheme();
+    const [tokens, setTokens] = useState([]);
+    const handleClickOpen = () => {
+        setOpen(true);
+        fetch_tokens()
+    };
+    const handleClose = (event, reason) => {
+        setOpen(false);
+    };
+    const handleActionClick = async (id) => {
+        try {
+            const token =  localStorage.getItem('token');
+            const data={
+                monitor:id,
+                token: token
+            }
+            console.log("----------------------", data)
+            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL2}/revoke-token`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Source': 'nextjs',
+                },
+                body: JSON.stringify(data),
+            });
+
+            if (!response.ok) {
+                const res = await response.json();
+                toast(res.error);
+            } else {
+                toast('Action performed successfully');
+                await fetch_tokens()
+            }
+        } catch (error) {
+            console.log(error)
+            toast(error.message);
+        }
+    };
+    const fetch_tokens = async () => {
+        const token = localStorage.getItem('token')
+        setIsLoading(true)
+        await verifyToken(token)
+        try {
+            const data = {
+                token: token,
+            };
+            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL2}/get-user-tokens`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Source': 'nextjs',
+                },
+                body: JSON.stringify(data),
+            });
+
+            
+
+            if (response.status === 200) {
+                const data = await response.json();
+                console.log(data)
+                setTokens(data);
+                setIsLoading(false)
+            }
+        
+            if (!response.ok) {
+                try{
+                    const data = await response.json();
+                    toast(data.message);
+                }catch{}
+                
+                setIsLoading(false)
+            }
+        } catch (error) {
+            console.log(error)
+            toast(error);
+            setIsLoading(false)
+        }
+    };
+
+      async function verifyToken(token){
+        if (token==null) {
+            toast('No token found, redirecting to login.');
+            window.location.href="/"
+            return;
+        }
+          const data = {
+              token: token,
+          };
+          const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/account/verify_token`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${token}`,
+            }, body: JSON.stringify(data),
+          });
+      
+          try {
+            if (response.status !== 202) {
+              toast('Invalid token, redirecting to login.');
+              localStorage.removeItem('token'); // Optionally clear token
+              window.location.href="/"
+              return;
+            }
+            
+          } catch (error) {
+            console.error('Error verifying token:', error);
+            toast('Error verifying token, redirecting to login.');
+            localStorage.removeItem('token'); // Optionally clear token
+            window.location.href="/"
+          }
+        }
+
+
+
+
+    return (
+        <React.Fragment>
+            <IconButton color="inherit" size='medium' onClick={handleClickOpen}>
+                <TokenIcon />
+            </IconButton>
+            <BootstrapDialog
+                sx={{
+                    '& .MuiPaper-root': {
+                        backgroundColor: theme === 'dark' ? '#263238' : 'white',
+                        color: theme === 'dark' ? '#E0E0E0' : 'white',
+                        fontFamily: '__Rubik_6eb173, __Rubik_Fallback_6eb173',
+                        dir: dict.lang == 'en' ? 'ltr' : 'ltr'
+                    },
+                }}
+                onClose={handleClose}
+                aria-labelledby="customized-dialog-title"
+                open={open}
+            >
+                <DialogTitle
+                    sx={{
+                        m: 0,
+                        p: 2,
+                        my: 1,
+                        py: 0, fontFamily: '__Rubik_6eb173, __Rubik_Fallback_6eb173',
+                        bgcolor: theme === 'dark' ? '#263238' : 'white',
+                        color: theme === 'dark' ? '#E0E0E0' : 'black',
+                    }}
+                    id="customized-dialog-title"
+                >
+                    Active Sessions
+                </DialogTitle>
+                <IconButton
+                    aria-label="close"
+                    onClick={handleClose}
+                    sx={{
+                        position: 'absolute',
+                        right: 8,
+                        top: 8,
+                        color: theme === 'dark' ? '#E0E0E0' : 'grey',
+                    }}
+                >
+                    <CloseIcon />
+                </IconButton>
+                <DialogContent
+                    sx={{
+                        fontFamily: '__Rubik_6eb173, __Rubik_Fallback_6eb173',
+                        bgcolor: theme === 'dark' ? '#263238' : 'white',
+                        color: theme === 'dark' ? '#E0E0E0' : 'white',
+                    }}
+                    dividers
+                >
+                    <Box
+                        sx={{
+                            '& > :not(style)': { m: 1, width: '90%' },
+                            display: 'flex',
+                            flexDirection: 'column',
+                            alignItems: 'center',
+                            justifyContent: 'center', fontFamily: '__Rubik_6eb173, __Rubik_Fallback_6eb173',
+                            bgcolor: theme === 'dark' ? '#263238' : 'white',
+                            color: theme === 'dark' ? '#E0E0E0' : 'white',
+                        }}
+                    >
+
+                        {isLoading ? (
+                            <p>Loading...</p>
+                        ) : (
+                            <table className='block w-full overflow-scroll'>
+                                <thead>
+                                    <tr>
+                                        <th className='px-3'>Agent</th>
+                                        <th className='px-3'>IP</th>
+                                        <th className='px-3'>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {tokens.map(token => (
+                                        <tr key={token.id} className='dark:bg-zinc-800 dark:text-white text-black' style={{ backgroundColor: token.current ? 'green' : '' }}>
+                                            
+                                            <td>{token.agent}</td>
+                                            <td>{token.ip}</td>
+                                            <td>
+                                                <IconButton
+                                                    aria-label="revoke"
+                                                    onClick={() => handleActionClick(token.id)}
+                                                    sx={{
+                                                        color: 'red',
+                                                    }}
+                                                >
+                                                    <CloseIcon />
+                                                </IconButton>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        )}
+
+                    </Box>
+                </DialogContent>
+            </BootstrapDialog>
+        </React.Fragment>
+    );
+}

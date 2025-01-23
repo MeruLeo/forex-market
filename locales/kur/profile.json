@@ -1,0 +1,35 @@
+{
+    "lang": "fa",
+    "from": "از",
+    "to": "تا",
+    "account":{
+        "title": "اطلاعات حساب",
+        "totalProfit": "مجموع سود و زیان",
+        "totalCommission": "مجموع کمسیون",
+        "totalSwap":"مجموع سواپ",
+        "totalDeposit": "واریز",
+        "totalWithdraw": "برداشت",
+        "totalBuyUnit": "واحد خرید",
+        "totalSellUint": "واحد فروش",
+        "totalBuy":"تعداد معاملات خرید",
+        "totalSell": "تعداد معاملات فروش"
+    },
+    "profile":{
+        "title": "اطلاعات کاربر",
+        "username": "نام کاربری",
+        "phone": "شماره همراه",
+        "bank_num1": "شماره کارت 1",
+        "bank_num2": "شماره کارت 2",
+        "bank_num3": "شماره کارت 3"
+    },
+    "transactions":{
+        "title": "واریز و برداشت",
+        "date": "تاریخ",
+        "ticket": "شماره تراکنش",
+        "amount_dollar": "$",
+        "amount_rial":"مبلغ تراکنش",
+        "type": "نوع",
+        "deposit": "واریز",
+        "withdraw": "برداشت"
+    }
+}

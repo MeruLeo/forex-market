@@ -1,0 +1,48 @@
+{
+    "lang":"fa",
+    "signup":{
+        "title":"بەخێربێن بۆ مێتا کۆپی",
+        "username":"ناوی نهێنی",
+        "real_name":"ناوی ڕاستەقینە",
+        "phone":"موبایل",
+        "phone_placeholder":"09123456789",
+        "bank":"ژمارە حسێب",
+        "password":"نهێنی",
+        "password2":"پەیتای نهێنی",
+        "btn":"ناونووسی  ←",
+        "btn2":"ناونووسی",
+        "loading":"خەریکی لۆدکردن",
+        "otp":"نهێنی نێردراو بۆ موبایلەکەتان دابەزێنن",
+        "submit_otp":"قەبوول",
+        "referer":"ڕێفڕاڵ",
+        "referer_placeholder":"ژماره موبایل",
+        "success": "ناو تۆمارکردنەکەت بە سەرکەوتوویی تەواو بووە",
+        "errors":{
+            "password_length":"وشەی نهێنی دەبێ لانیکەم ٨ کاراکتێر بێت",
+            "password_repeat":"پەیتای وشەی نهێنی وەک یەک نین",
+            "not_checked":"هەلومەرج و ڕێنامە قەبووڵ بکەن",
+            "phone_format":"تکایه بە فۆڕمەتی 09xxxxxxxxx دایبەزێنە"
+        }
+    },
+    "login":{
+        "title":"چوونە ناو حسێب",
+        "btn":"چوونەژوور  ←",
+        "btn2":"چوونەژوور",
+        "errors":{
+            "captcha":"تکایە وەاڵمی کەپچا بدەوە",
+            "small_username" : "ناوی نهێنی دەبێ لانیکەم ٣ کاراکتێری هەبێ"
+        }
+    },
+    "start":"ستارت مامەلە",
+    "login_success":"چوونەژوور سەرکەوتوو بوو",
+    "main_page":"لاپەڕەی سەرەکی",
+
+    "writer": "Haruki Murakami",
+    "book":"Norwegian Wood",
+    "quote":"If you only read the books that everyone else is reading, you can only think what everyone else is thinking. ",
+    "form": {
+        "logged":"ئێوە چوونەتە ناو حسێبی خۆتانەوە."
+    },
+    "terms":"هەلومەرج و ڕێنامەی کەلک وەرگرتن لە خزمەتەکان قەبووڵ دەکەم."
+    
+}

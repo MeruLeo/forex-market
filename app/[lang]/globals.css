@@ -1,0 +1,103 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 222.2 84% 4.9%;
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 84% 4.9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 84% 4.9%;
+    --primary: 221.2 83.2% 53.3%;
+    --primary-foreground: 210 40% 98%;
+    --secondary: 210 40% 96.1%;
+    --secondary-foreground: 222.2 47.4% 11.2%;
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+    --accent: 210 40% 96.1%;
+    --accent-foreground: 222.2 47.4% 11.2%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 221.2 83.2% 53.3%;
+    --radius: 0.5rem;
+    --chart-1: 12 76% 61%;
+    --chart-2: 173 58% 39%;
+    --chart-3: 197 37% 24%;
+    --chart-4: 43 74% 66%;
+    --chart-5: 27 87% 67%;
+  }
+
+  .dark {
+    --background: 222.2 84% 4.9%;
+    --foreground: 210 40% 98%;
+    --card: 222.2 84% 4.9%;
+    --card-foreground: 210 40% 98%;
+    --popover: 222.2 84% 4.9%;
+    --popover-foreground: 210 40% 98%;
+    --primary: 217.2 91.2% 59.8%;
+    --primary-foreground: 222.2 47.4% 11.2%;
+    --secondary: 217.2 32.6% 17.5%;
+    --secondary-foreground: 210 40% 98%;
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
+    --accent: 217.2 32.6% 17.5%;
+    --accent-foreground: 210 40% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 224.3 76.3% 48%;
+    --chart-1: 220 70% 50%;
+    --chart-2: 160 60% 45%;
+    --chart-3: 30 80% 55%;
+    --chart-4: 280 65% 60%;
+    --chart-5: 340 75% 55%;
+  }
+}
+
+@layer components{
+  .modal{
+    @apply fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 border-zinc-400  sm:pt-14 sm:pr-9
+  }
+  .modal-content{
+      @apply p-6 rounded-lg shadow-lg transform transition-all h-full w-full  bg-gray-200 mx-auto my-auto dark:bg-zinc-800 text-zinc-800 dark:text-white border-2 border-white max-h-full
+  }
+  .modal-lg{
+      @apply md:w-[580px] md:h-[480px] lg:w-[980px] xl:w-[1100px] xl:h-[680px] lg:h-[580px] 
+  }
+  .modal-md{
+      @apply md:w-[480px] md:h-[480px] lg:w-[780px]  lg:h-[480px] 
+  }
+  .modal-sm{
+      @apply md:w-[380px] md:h-[480px] lg:w-[680px]  lg:h-[480px] 
+  }
+  .modal-header{
+      @apply text-base sm:text-xl font-bold border-b-2 border-b-gray-400 text-center
+  }
+  .modal-footer{
+      @apply px-4 py-2 border-t-2 border-zinc-700 text-white absolute bottom-0 w-full left-0 right-0 flex justify-center items-center
+  }
+  .modal-enter{
+      @apply opacity-0 transform scale-90
+  }
+  .modal-enter-active {
+      @apply opacity-100 transform scale-100 transition-all
+  }
+  .modal-leave{
+      @apply opacity-100 transform scale-100 
+  }
+  .modal-leave-active{
+      @apply opacity-0 transform scale-90 transition-all
+  }
+  .modal-title{
+      @apply absolute top-0 left-0 w-full flex h-10 md:h-16 justify-center items-center font-bold text-base  border-b-2 border-b-gray-400
+  }
+  .rmdp-input{
+    @apply w-full rounded border-[1.5px] border-stroke bg-white px-4 py-1.5 font-light text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-zinc-800 dark:text-white dark:focus:border-primary text-sm xl:text-base
+  }
+}
