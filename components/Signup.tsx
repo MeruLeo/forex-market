@@ -12,6 +12,7 @@ import { useRouter } from 'next/navigation';
 import { getUserFromToken } from '@/lib/jwt';
 import Link from 'next/link';
 import ReCAPTCHA from 'react-google-recaptcha';
+import Cookies from 'js-cookie';
 
 const SignupDialog = ({ isOpen, onclose }: { isOpen: boolean, onclose: any }) => {
   let token = '';
@@ -106,11 +107,11 @@ const SignupDialog = ({ isOpen, onclose }: { isOpen: boolean, onclose: any }) =>
         setErrorp2(null)
         setOpen(false);
         onclose();
-        localStorage.setItem('token', token)
+        Cookies.set('access', token)
         openToast();
       } else {
         const errorData = await response.json();
-        localStorage.removeItem('token');
+        Cookies.remove('access');
         if (errorData.username) {
           setErrorUser(errorData.username)
         } else {
@@ -123,7 +124,7 @@ const SignupDialog = ({ isOpen, onclose }: { isOpen: boolean, onclose: any }) =>
         }
       }
     } catch (error: any) {
-      localStorage.removeItem('token');
+      Cookies.remove('access');
       setError(error.message)
     } finally {
       setIsLoading(false)

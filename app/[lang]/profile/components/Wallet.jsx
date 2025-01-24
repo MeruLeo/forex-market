@@ -11,6 +11,7 @@ import Box from '@mui/material/Box';
 import { useTheme } from 'next-themes';
 import Button from '@mui/material/Button';
 import Divider from '@mui/material/Divider';
+import Cookies from "js-cookie"
 
 
 const BootstrapDialog = styled(Dialog)(({ theme }) => ({
@@ -54,7 +55,7 @@ const Wallet = ({ dict }) => {
       return;
     }
     setIs_loading(true)
-    const token = localStorage.getItem('token')
+    const token = Cookies.get("access")
 
     try {
         const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL2}/take-from-wallet`, {
@@ -93,7 +94,7 @@ const Wallet = ({ dict }) => {
     }
     setIs_loading(true)
    
-    const token = localStorage.getItem('token')
+    const token = Cookies.get("access")
 
     try {
         const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL2}/add-to-wallet`, {
@@ -133,7 +134,7 @@ const Wallet = ({ dict }) => {
 
   const getWallet = async () => {
     setIs_loading(true)
-    const token = localStorage.getItem('token')
+    const token = Cookies.get("access")
     try {
         const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL2}/user-wallet`, {
         method: 'POST',

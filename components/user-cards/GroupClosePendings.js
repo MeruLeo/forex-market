@@ -1,30 +1,30 @@
-import React, { useState } from 'react';
-import Button from '@mui/material/Button';
-import { styled } from '@mui/material/styles';
-import Dialog from '@mui/material/Dialog';
-import DialogTitle from '@mui/material/DialogTitle';
-import DialogContent from '@mui/material/DialogContent';
-import IconButton from '@mui/material/IconButton';
-import CloseIcon from '@mui/icons-material/Close';
-import Box from '@mui/material/Box';
-import WorkspacesIcon from '@mui/icons-material/Workspaces';
-import { toast } from 'sonner';
-import { useTheme } from 'next-themes';
-import Divider from '@mui/material/Divider';
-import { useConfirmationDialog } from '../../hooks/useConfirmationDialog'
-
+import React, { useState } from "react";
+import Button from "@mui/material/Button";
+import { styled } from "@mui/material/styles";
+import Dialog from "@mui/material/Dialog";
+import DialogTitle from "@mui/material/DialogTitle";
+import DialogContent from "@mui/material/DialogContent";
+import IconButton from "@mui/material/IconButton";
+import CloseIcon from "@mui/icons-material/Close";
+import Box from "@mui/material/Box";
+import WorkspacesIcon from "@mui/icons-material/Workspaces";
+import { toast } from "sonner";
+import { useTheme } from "next-themes";
+import Divider from "@mui/material/Divider";
+import { useConfirmationDialog } from "../../hooks/useConfirmationDialog";
+import Cookies from "js-cookie";
 
 const BootstrapDialog = styled(Dialog)(({ theme }) => ({
-    '& .MuiDialogContent-root': {
+    "& .MuiDialogContent-root": {
         padding: theme.spacing(2),
     },
-    '& .MuiDialogActions-root': {
+    "& .MuiDialogActions-root": {
         padding: theme.spacing(1),
     },
 }));
 
 export default function GroupClosePendings({ dict }) {
-    const {confirm, ConfirmationDialogComponent} = useConfirmationDialog();
+    const { confirm, ConfirmationDialogComponent } = useConfirmationDialog();
 
     const [open, setOpen] = useState(false);
     const { theme } = useTheme();
@@ -34,35 +34,35 @@ export default function GroupClosePendings({ dict }) {
     };
     const handleClose = (event, reason) => {
         setOpen(false);
-
     };
 
     const onEditOrderClicked = async (target) => {
-        handleClose()
+        handleClose();
         try {
             const data = {
-                token: localStorage.getItem('token'),
+                token: Cookies.get("access"),
             };
-            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/mt5/${target}`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
+            const response = await fetch(
+                `${process.env.NEXT_PUBLIC_API_URL}/mt5/${target}`,
+                {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify(data),
                 },
-                body: JSON.stringify(data),
-            });
+            );
 
             const res = await response.json();
 
             if (response.status === 200) {
-                
-                if(res.message=="succes closing pendings"){
+                if (res.message == "succes closing pendings") {
                     toast(dict.confirmation.success_close_all_futures);
-                }else if(res.message=="succes closing buy pendings"){
+                } else if (res.message == "succes closing buy pendings") {
                     toast(dict.confirmation.success_close_buy_futures);
-
-                }else if(res.message=="succes closing sell pendings"){
+                } else if (res.message == "succes closing sell pendings") {
                     toast(dict.confirmation.success_close_sell_futures);
-                }else{
+                } else {
                     toast(res.message);
                 }
                 setOpen(false);
@@ -79,15 +79,20 @@ export default function GroupClosePendings({ dict }) {
 
     return (
         <React.Fragment>
-            <IconButton color="red" style={{color:"orange"}} size='small' onClick={handleClickOpen} >
+            <IconButton
+                color="red"
+                style={{ color: "orange" }}
+                size="small"
+                onClick={handleClickOpen}
+            >
                 <WorkspacesIcon />
             </IconButton>
             <BootstrapDialog
                 sx={{
-                    '& .MuiPaper-root': {
-                        backgroundColor: theme === 'dark' ? '#263238' : 'white',
-                        color: theme === 'dark' ? '#E0E0E0' : 'white',
-                        fontFamily: '__Rubik_6eb173, __Rubik_Fallback_6eb173',
+                    "& .MuiPaper-root": {
+                        backgroundColor: theme === "dark" ? "#263238" : "white",
+                        color: theme === "dark" ? "#E0E0E0" : "white",
+                        fontFamily: "__Rubik_6eb173, __Rubik_Fallback_6eb173",
                     },
                 }}
                 onClose={handleClose}
@@ -99,9 +104,10 @@ export default function GroupClosePendings({ dict }) {
                         m: 0,
                         p: 2,
                         my: 1,
-                        py: 0, fontFamily: '__Rubik_6eb173, __Rubik_Fallback_6eb173',
-                        bgcolor: theme === 'dark' ? '#263238' : 'white',
-                        color: theme === 'dark' ? '#E0E0E0' : 'black',
+                        py: 0,
+                        fontFamily: "__Rubik_6eb173, __Rubik_Fallback_6eb173",
+                        bgcolor: theme === "dark" ? "#263238" : "white",
+                        color: theme === "dark" ? "#E0E0E0" : "black",
                     }}
                     id="customized-dialog-title"
                 >
@@ -111,53 +117,107 @@ export default function GroupClosePendings({ dict }) {
                     aria-label="close"
                     onClick={handleClose}
                     sx={{
-                        position: 'absolute',
+                        position: "absolute",
                         right: 8,
                         top: 8,
-                        color: theme === 'dark' ? '#E0E0E0' : 'grey',
+                        color: theme === "dark" ? "#E0E0E0" : "grey",
                     }}
                 >
                     <CloseIcon />
                 </IconButton>
                 <DialogContent
                     sx={{
-                        bgcolor: theme === 'dark' ? '#263238' : 'white',
-                        color: theme === 'dark' ? '#E0E0E0' : 'white',
+                        bgcolor: theme === "dark" ? "#263238" : "white",
+                        color: theme === "dark" ? "#E0E0E0" : "white",
                     }}
                     dividers
                 >
                     <Box
                         sx={{
-                            '& > :not(style)': { m: 1, minWidth: '30ch' },
-                            display: 'flex',
-                            flexDirection: 'column',
-                            alignItems: 'center',
-                            justifyContent: 'center', fontFamily: '__Rubik_6eb173, __Rubik_Fallback_6eb173',
-                            bgcolor: theme === 'dark' ? '#263238' : 'white',
-                            color: theme === 'dark' ? '#E0E0E0' : 'white',
+                            "& > :not(style)": { m: 1, minWidth: "30ch" },
+                            display: "flex",
+                            flexDirection: "column",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            fontFamily:
+                                "__Rubik_6eb173, __Rubik_Fallback_6eb173",
+                            bgcolor: theme === "dark" ? "#263238" : "white",
+                            color: theme === "dark" ? "#E0E0E0" : "white",
                         }}
                     >
-                        <Button sx={{ textTransform: 'none',my: 5, fontFamily: '__Rubik_6eb173, __Rubik_Fallback_6eb173', }} fullWidth variant="contained" color="error" size="large"
-                            onClick={() => { confirm(dict,dict.confirmation.close_all_futures, onEditOrderClicked, 'close_all_futures') } }
+                        <Button
+                            sx={{
+                                textTransform: "none",
+                                my: 5,
+                                fontFamily:
+                                    "__Rubik_6eb173, __Rubik_Fallback_6eb173",
+                            }}
+                            fullWidth
+                            variant="contained"
+                            color="error"
+                            size="large"
+                            onClick={() => {
+                                confirm(
+                                    dict,
+                                    dict.confirmation.close_all_futures,
+                                    onEditOrderClicked,
+                                    "close_all_futures",
+                                );
+                            }}
                         >
                             {dict.order.close_all}
-                        </Button><Divider />
-                        <Button sx={{ textTransform: 'none',my: 5, fontFamily: '__Rubik_6eb173, __Rubik_Fallback_6eb173', }} fullWidth variant="contained" color="error" size="large"
-                            onClick={() =>  { confirm(dict,dict.confirmation.close_buy_futures, onEditOrderClicked, 'close_buy_futures') }}
+                        </Button>
+                        <Divider />
+                        <Button
+                            sx={{
+                                textTransform: "none",
+                                my: 5,
+                                fontFamily:
+                                    "__Rubik_6eb173, __Rubik_Fallback_6eb173",
+                            }}
+                            fullWidth
+                            variant="contained"
+                            color="error"
+                            size="large"
+                            onClick={() => {
+                                confirm(
+                                    dict,
+                                    dict.confirmation.close_buy_futures,
+                                    onEditOrderClicked,
+                                    "close_buy_futures",
+                                );
+                            }}
                         >
                             {dict.order.close_all_buys}
-                        </Button><Divider />
-                        <Button sx={{ textTransform: 'none',my: 5, fontFamily: '__Rubik_6eb173, __Rubik_Fallback_6eb173', }} fullWidth variant="contained" color="error" size="large"
-                            onClick={() =>  { confirm(dict,dict.confirmation.close_sell_futures, onEditOrderClicked, 'close_sell_futures') }}
+                        </Button>
+                        <Divider />
+                        <Button
+                            sx={{
+                                textTransform: "none",
+                                my: 5,
+                                fontFamily:
+                                    "__Rubik_6eb173, __Rubik_Fallback_6eb173",
+                            }}
+                            fullWidth
+                            variant="contained"
+                            color="error"
+                            size="large"
+                            onClick={() => {
+                                confirm(
+                                    dict,
+                                    dict.confirmation.close_sell_futures,
+                                    onEditOrderClicked,
+                                    "close_sell_futures",
+                                );
+                            }}
                         >
                             {dict.order.close_all_sells}
-                        </Button><Divider />
-                       
+                        </Button>
+                        <Divider />
                     </Box>
                 </DialogContent>
             </BootstrapDialog>
-        { ConfirmationDialogComponent }
-
+            {ConfirmationDialogComponent}
         </React.Fragment>
     );
 }

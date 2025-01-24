@@ -18,6 +18,7 @@ import gregorian from "react-date-object/calendars/gregorian"
 import persian_fa from "react-date-object/locales/persian_fa"
 import gregorian_en from "react-date-object/locales/gregorian_en"
 import TimePicker from "react-multi-date-picker/plugins/time_picker";
+import Cookies from 'js-cookie';
 
 
 const BootstrapDialog = styled(Dialog)(({ theme }) => ({
@@ -64,7 +65,7 @@ export default function Calendar({ dict, onUpdateDates }) {
     const SetDateTime = async (target) => {
         try {
             const data = {
-                token: localStorage.getItem('token'),
+                token: Cookies.get('access'),
             };
             const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/mt5/${target}`, {
                 method: 'POST',

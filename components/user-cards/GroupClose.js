@@ -12,7 +12,7 @@ import { toast } from 'sonner';
 import { useTheme } from 'next-themes';
 import Divider from '@mui/material/Divider';
 import { useConfirmationDialog } from '../../hooks/useConfirmationDialog'
-
+import Cookies from 'js-cookie';
 
 const BootstrapDialog = styled(Dialog)(({ theme }) => ({
     '& .MuiDialogContent-root': {
@@ -41,7 +41,7 @@ export default function GroupClose({ dict }) {
         handleClose()
         try {
             const data = {
-                token: localStorage.getItem('token'),
+                token: Cookies.get("access"),
             };
             const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/mt5/${target}`, {
                 method: 'POST',

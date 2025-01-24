@@ -15,6 +15,7 @@ import { useTheme } from 'next-themes';
 import { useAppContext } from "@/context";
 import BorderColorIcon from '@mui/icons-material/BorderColor';
 import Divider from '@mui/material/Divider';
+import Cookies from "js-cookie"
 
 const BootstrapDialog = styled(Dialog)(({ theme }) => ({
     '& .MuiDialogContent-root': {
@@ -49,7 +50,7 @@ export default function EditPositionDialog({ order_id,order_type,current_price,o
         setSendingModify(true)
         try {
             const data = {
-                token: localStorage.getItem('token'),
+                token: Cookies.get("access"),
                 ticket: order_ticket,
                 id: order_id,
                 sl: sl,

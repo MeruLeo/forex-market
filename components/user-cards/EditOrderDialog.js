@@ -14,6 +14,7 @@ import { toast } from 'sonner';
 import { useTheme } from 'next-themes';
 import { useAppContext } from "@/context";
 import BorderColorIcon from '@mui/icons-material/BorderColor';
+import Cookies from "js-cookie"
 
 const BootstrapDialog = styled(Dialog)(({ theme }) => ({
     '& .MuiDialogContent-root': {
@@ -47,7 +48,7 @@ export default function EditOrderDialog({ order_type, order_id, order_tp, order_
         setSendingModify(true)
         try {
             const data = {
-                token: localStorage.getItem('token'),
+                token: Cookies.get("access"),
                 id: order_id,
                 entry: price,
                 sl: sl,
