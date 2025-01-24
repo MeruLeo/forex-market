@@ -11,6 +11,7 @@ import { Input } from "@/components/shadcn/input";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useAppContext } from "@/context";
+import axiosInstance from "@/utils/axiosInstance";
 interface Banks {
     [key: string]: string;
 }
@@ -45,22 +46,16 @@ const ClientPayment = ({ dict }: { dict: any }) => {
     const get_payment = async () => {
         try {
             setIsLoading(true);
-            const response = await fetch(
-                `${process.env.NEXT_PUBLIC_API_URL}/zarinpal/payment/request/`,
+            const response = await axiosInstance.post(
+                "/zarinpal/payment/request/",
                 {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                    body: JSON.stringify({
-                        token: Cookies.get("access"),
-                        amount: amount,
-                        bank_number: cardNumber,
-                    }),
+                    token: Cookies.get("access"),
+                    amount: amount,
+                    bank_number: cardNumber,
                 },
             );
 
-            const res = await response.json();
+            const res = response.data;
             if (response.ok) {
                 setIsLoading(false);
                 router.push(res.url);

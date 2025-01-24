@@ -14,6 +14,7 @@ import { useTheme } from "next-themes";
 import RequestQuoteIcon from "@mui/icons-material/RequestQuote";
 import DialogActions from "@mui/material/DialogActions";
 import Cookies from "js-cookie";
+import axiosInstance from "@/utils/axiosInstance";
 
 const BootstrapDialog = styled(Dialog)(({ theme }) => ({
     "& .MuiDialogContent-root": {
@@ -47,31 +48,23 @@ export default function WithdrawalRequest({ dict }) {
             };
             setOpen(false);
 
-            const response = await fetch(
+            const response = await axiosInstance.post(
                 `${process.env.NEXT_PUBLIC_API_URL}/state/rquest`,
-                {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                    body: JSON.stringify(data),
-                },
+                data,
             );
+
             if (response.status === 200) {
                 toast(dict.withdrawal_request_accepted);
                 setOpen(false);
                 return;
             }
-            try {
-                response.json().then((d) => {
-                    if (d.error == "Withdrawal is currently disallowed") {
-                        toast(dict.errors.withdrawal_request_disallowed);
-                    } else {
-                        toast(d.error);
-                        return;
-                    }
-                });
-            } catch {}
+
+            if (response.data.error === "Withdrawal is currently disallowed") {
+                toast(dict.errors.withdrawal_request_disallowed);
+            } else {
+                toast(response.data.error);
+                return;
+            }
         } catch (error) {
             toast(dict.errors.withdrawal_request_error);
         }

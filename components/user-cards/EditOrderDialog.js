@@ -1,31 +1,41 @@
-import React, { useEffect, useState } from 'react';
-import Button from '@mui/material/Button';
-import { styled } from '@mui/material/styles';
-import Dialog from '@mui/material/Dialog';
-import DialogTitle from '@mui/material/DialogTitle';
-import DialogContent from '@mui/material/DialogContent';
-import DialogActions from '@mui/material/DialogActions';
-import IconButton from '@mui/material/IconButton';
-import CloseIcon from '@mui/icons-material/Close';
-import Box from '@mui/material/Box';
-import TextField from '@mui/material/TextField';
-import { MdEditDocument } from 'react-icons/md';
-import { toast } from 'sonner';
-import { useTheme } from 'next-themes';
+import React, { useEffect, useState } from "react";
+import Button from "@mui/material/Button";
+import { styled } from "@mui/material/styles";
+import Dialog from "@mui/material/Dialog";
+import DialogTitle from "@mui/material/DialogTitle";
+import DialogContent from "@mui/material/DialogContent";
+import DialogActions from "@mui/material/DialogActions";
+import IconButton from "@mui/material/IconButton";
+import CloseIcon from "@mui/icons-material/Close";
+import Box from "@mui/material/Box";
+import TextField from "@mui/material/TextField";
+import { MdEditDocument } from "react-icons/md";
+import { toast } from "sonner";
+import { useTheme } from "next-themes";
 import { useAppContext } from "@/context";
-import BorderColorIcon from '@mui/icons-material/BorderColor';
-import Cookies from "js-cookie"
+import BorderColorIcon from "@mui/icons-material/BorderColor";
+import Cookies from "js-cookie";
+import axiosInstance from "@/utils/axiosInstance";
 
 const BootstrapDialog = styled(Dialog)(({ theme }) => ({
-    '& .MuiDialogContent-root': {
+    "& .MuiDialogContent-root": {
         padding: theme.spacing(2),
     },
-    '& .MuiDialogActions-root': {
+    "& .MuiDialogActions-root": {
         padding: theme.spacing(1),
     },
 }));
 
-export default function EditOrderDialog({ order_type, order_id, order_tp, order_sl, order_price, order_leverage, order_unit, dict }) {
+export default function EditOrderDialog({
+    order_type,
+    order_id,
+    order_tp,
+    order_sl,
+    order_price,
+    order_leverage,
+    order_unit,
+    dict,
+}) {
     const [open, setOpen] = useState(false);
     const [price, setPrice] = useState(order_price);
     const [sl, setSl] = useState(order_sl);
@@ -33,19 +43,18 @@ export default function EditOrderDialog({ order_type, order_id, order_tp, order_
     const [unit, setUnit] = useState(order_unit);
     const [leverage, setLeverage] = useState(order_leverage);
     const { theme } = useTheme();
-    const [sendingModify, setSendingModify] = useState(false)
+    const [sendingModify, setSendingModify] = useState(false);
 
     const handleClickOpen = () => {
         setOpen(true);
     };
     const handleClose = (event, reason) => {
         setOpen(false);
-
     };
 
     const onEditOrderClicked = async () => {
-        handleClose()
-        setSendingModify(true)
+        handleClose();
+        setSendingModify(true);
         try {
             const data = {
                 token: Cookies.get("access"),
@@ -56,16 +65,12 @@ export default function EditOrderDialog({ order_type, order_id, order_tp, order_
                 unit: unit,
                 leverage: leverage,
             };
-            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/mt5/modify_pending`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-Source': 'nextjs',
-                },
-                body: JSON.stringify(data),
-            });
+            const response = await axiosInstance.post(
+                `${process.env.NEXT_PUBLIC_API_URL}/mt5/modify_pending`,
+                data,
+            );
 
-            const res = await response.json();
+            const res = response.data;
 
             if (response.status === 200) {
                 toast(dict.trade.modify_success);
@@ -75,36 +80,36 @@ export default function EditOrderDialog({ order_type, order_id, order_tp, order_
                 }, 2000);
                 return;
             }
-        
-            if (!response.ok) {
-                try{
-                    if (res.error=="Edit trade or orders are currently disallowed"){
-                        toast(dict.order.errors.edit_disallowed)
-                        return;
-                    }
-                  }catch{}
 
-                  try{
-                    if (res.error=="The amount of TP is not allowed"){
-                        toast(dict.order.errors.wrong_tp)
-                        setTimeout(() => {
-                            setSendingModify(false);
-                        }, 2000);
-                        return;
-                    }else if (res.error=="The amount of SL is not allowed"){
-                        toast(dict.order.errors.wrong_sl)
-                        setTimeout(() => {
-                            setSendingModify(false);
-                        }, 2000);
-                        return;
-                    }
-                  }catch{}
-                  
+            if (response.status !== 200) {
+                if (
+                    res.error ===
+                    "Edit trade or orders are currently disallowed"
+                ) {
+                    toast(dict.order.errors.edit_disallowed);
+                    return;
+                }
+
+                if (res.error === "The amount of TP is not allowed") {
+                    toast(dict.order.errors.wrong_tp);
+                    setTimeout(() => {
+                        setSendingModify(false);
+                    }, 2000);
+                    return;
+                }
+
+                if (res.error === "The amount of SL is not allowed") {
+                    toast(dict.order.errors.wrong_sl);
+                    setTimeout(() => {
+                        setSendingModify(false);
+                    }, 2000);
+                    return;
+                }
+
                 toast(res.error);
                 setTimeout(() => {
                     setSendingModify(false);
                 }, 2000);
-                return;
             }
         } catch (error) {
             setTimeout(() => {
@@ -116,16 +121,16 @@ export default function EditOrderDialog({ order_type, order_id, order_tp, order_
 
     return (
         <React.Fragment>
-            <IconButton color="inherit" size='small' onClick={handleClickOpen}>
+            <IconButton color="inherit" size="small" onClick={handleClickOpen}>
                 <BorderColorIcon />
             </IconButton>
             <BootstrapDialog
                 sx={{
-                    '& .MuiPaper-root': {
-                        backgroundColor: theme === 'dark' ? '#263238' : 'white',
-                        color: theme === 'dark' ? '#E0E0E0' : 'white',
-                        fontFamily: '__Rubik_6eb173, __Rubik_Fallback_6eb173',
-                        dir: dict.lang == 'en' ? 'ltr' : 'ltr'
+                    "& .MuiPaper-root": {
+                        backgroundColor: theme === "dark" ? "#263238" : "white",
+                        color: theme === "dark" ? "#E0E0E0" : "white",
+                        fontFamily: "__Rubik_6eb173, __Rubik_Fallback_6eb173",
+                        dir: dict.lang == "en" ? "ltr" : "ltr",
                     },
                 }}
                 onClose={handleClose}
@@ -137,9 +142,10 @@ export default function EditOrderDialog({ order_type, order_id, order_tp, order_
                         m: 0,
                         p: 2,
                         my: 1,
-                        py: 0, fontFamily: '__Rubik_6eb173, __Rubik_Fallback_6eb173',
-                        bgcolor: theme === 'dark' ? '#263238' : 'white',
-                        color: theme === 'dark' ? '#E0E0E0' : 'black',
+                        py: 0,
+                        fontFamily: "__Rubik_6eb173, __Rubik_Fallback_6eb173",
+                        bgcolor: theme === "dark" ? "#263238" : "white",
+                        color: theme === "dark" ? "#E0E0E0" : "black",
                     }}
                     id="customized-dialog-title"
                 >
@@ -149,41 +155,63 @@ export default function EditOrderDialog({ order_type, order_id, order_tp, order_
                     aria-label="close"
                     onClick={handleClose}
                     sx={{
-                        position: 'absolute',
+                        position: "absolute",
                         right: 8,
                         top: 8,
-                        color: theme === 'dark' ? '#E0E0E0' : 'grey',
+                        color: theme === "dark" ? "#E0E0E0" : "grey",
                     }}
                 >
                     <CloseIcon />
                 </IconButton>
                 <DialogContent
                     sx={{
-                        fontFamily: '__Rubik_6eb173, __Rubik_Fallback_6eb173',
-                        bgcolor: theme === 'dark' ? '#263238' : 'white',
-                        color: theme === 'dark' ? '#E0E0E0' : 'white',
+                        fontFamily: "__Rubik_6eb173, __Rubik_Fallback_6eb173",
+                        bgcolor: theme === "dark" ? "#263238" : "white",
+                        color: theme === "dark" ? "#E0E0E0" : "white",
                     }}
                     dividers
                 >
                     <Box
                         sx={{
-                            '& > :not(style)': { m: 1, width: '25ch' },
-                            display: 'flex',
-                            flexDirection: 'column',
-                            alignItems: 'center',
-                            justifyContent: 'center', fontFamily: '__Rubik_6eb173, __Rubik_Fallback_6eb173',
-                            bgcolor: theme === 'dark' ? '#263238' : 'white',
-                            color: theme === 'dark' ? '#E0E0E0' : 'white',
+                            "& > :not(style)": { m: 1, width: "25ch" },
+                            display: "flex",
+                            flexDirection: "column",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            fontFamily:
+                                "__Rubik_6eb173, __Rubik_Fallback_6eb173",
+                            bgcolor: theme === "dark" ? "#263238" : "white",
+                            color: theme === "dark" ? "#E0E0E0" : "white",
                         }}
                     >
                         <TextField
                             sx={{
-                                fontFamily: '__Rubik_6eb173, __Rubik_Fallback_6eb173',
-                                input: { color: theme === 'dark' ? '#eaeaea' : 'inherit', fontFamily: '__Rubik_6eb173, __Rubik_Fallback_6eb173', },
-                                '& .MuiInputLabel-root': { color: theme === 'dark' ? '#eaeaea' : 'black', fontFamily: '__Rubik_6eb173, __Rubik_Fallback_6eb173', },
+                                fontFamily:
+                                    "__Rubik_6eb173, __Rubik_Fallback_6eb173",
+                                input: {
+                                    color:
+                                        theme === "dark"
+                                            ? "#eaeaea"
+                                            : "inherit",
+                                    fontFamily:
+                                        "__Rubik_6eb173, __Rubik_Fallback_6eb173",
+                                },
+                                "& .MuiInputLabel-root": {
+                                    color:
+                                        theme === "dark" ? "#eaeaea" : "black",
+                                    fontFamily:
+                                        "__Rubik_6eb173, __Rubik_Fallback_6eb173",
+                                },
                             }}
-                            error={sl < 0
-                                || (order_type == 'buy' && sl > order_price && sl != 0) || (order_type == 'sell' && sl < order_price && sl != 0)}
+                            error={
+                                sl < 0 ||
+                                (order_type == "buy" &&
+                                    sl > order_price &&
+                                    sl != 0) ||
+                                (order_type == "sell" &&
+                                    sl < order_price &&
+                                    sl != 0)
+                            }
                             id="Stop Loss"
                             size="small"
                             label={dict.trade.sl}
@@ -191,16 +219,38 @@ export default function EditOrderDialog({ order_type, order_id, order_tp, order_
                             value={sl}
                             min={0}
                             type="number"
-                            onChange={(e) => { setSl(e.target.value) }}
+                            onChange={(e) => {
+                                setSl(e.target.value);
+                            }}
                         />
                         <TextField
                             sx={{
-                                fontFamily: '__Rubik_6eb173, __Rubik_Fallback_6eb173',
-                                input: { color: theme === 'dark' ? '#eaeaea' : 'inherit', fontFamily: '__Rubik_6eb173, __Rubik_Fallback_6eb173', },
-                                '& .MuiInputLabel-root': { color: theme === 'dark' ? '#eaeaea' : 'black', fontFamily: '__Rubik_6eb173, __Rubik_Fallback_6eb173', },
+                                fontFamily:
+                                    "__Rubik_6eb173, __Rubik_Fallback_6eb173",
+                                input: {
+                                    color:
+                                        theme === "dark"
+                                            ? "#eaeaea"
+                                            : "inherit",
+                                    fontFamily:
+                                        "__Rubik_6eb173, __Rubik_Fallback_6eb173",
+                                },
+                                "& .MuiInputLabel-root": {
+                                    color:
+                                        theme === "dark" ? "#eaeaea" : "black",
+                                    fontFamily:
+                                        "__Rubik_6eb173, __Rubik_Fallback_6eb173",
+                                },
                             }}
-                            error={tp < 0
-                                || (order_type == 'buy' && tp < order_price && tp != 0) || (order_type == 'sell' && tp > order_price && tp != 0)}
+                            error={
+                                tp < 0 ||
+                                (order_type == "buy" &&
+                                    tp < order_price &&
+                                    tp != 0) ||
+                                (order_type == "sell" &&
+                                    tp > order_price &&
+                                    tp != 0)
+                            }
                             id="Take Profit"
                             size="small"
                             label={dict.trade.tp}
@@ -208,14 +258,30 @@ export default function EditOrderDialog({ order_type, order_id, order_tp, order_
                             value={tp}
                             min={0}
                             type="number"
-                            onChange={(e) => { setTp(e.target.value) }}
+                            onChange={(e) => {
+                                setTp(e.target.value);
+                            }}
                         />
                         <TextField
                             sx={{
-                                fontFamily: '__Rubik_6eb173, __Rubik_Fallback_6eb173',
-                                input: { color: theme === 'dark' ? '#eaeaea' : 'inherit', fontFamily: '__Rubik_6eb173, __Rubik_Fallback_6eb173', },
-                                '& .MuiInputLabel-root': { color: theme === 'dark' ? '#eaeaea' : 'black', fontFamily: '__Rubik_6eb173, __Rubik_Fallback_6eb173', },
-                            }} error={leverage <= 0}
+                                fontFamily:
+                                    "__Rubik_6eb173, __Rubik_Fallback_6eb173",
+                                input: {
+                                    color:
+                                        theme === "dark"
+                                            ? "#eaeaea"
+                                            : "inherit",
+                                    fontFamily:
+                                        "__Rubik_6eb173, __Rubik_Fallback_6eb173",
+                                },
+                                "& .MuiInputLabel-root": {
+                                    color:
+                                        theme === "dark" ? "#eaeaea" : "black",
+                                    fontFamily:
+                                        "__Rubik_6eb173, __Rubik_Fallback_6eb173",
+                                },
+                            }}
+                            error={leverage <= 0}
                             id="leverage"
                             size="small"
                             label={dict.trade.leverage}
@@ -237,11 +303,24 @@ export default function EditOrderDialog({ order_type, order_id, order_tp, order_
                         />
                         <TextField
                             sx={{
-                                fontFamily: '__Rubik_6eb173, __Rubik_Fallback_6eb173',
-                                input: { color: theme === 'dark' ? '#eaeaea' : 'inherit', fontFamily: '__Rubik_6eb173, __Rubik_Fallback_6eb173', },
-                                '& .MuiInputLabel-root': { color: theme === 'dark' ? '#eaeaea' : 'black', fontFamily: '__Rubik_6eb173, __Rubik_Fallback_6eb173', },
-
-                            }} error={unit <= 0}
+                                fontFamily:
+                                    "__Rubik_6eb173, __Rubik_Fallback_6eb173",
+                                input: {
+                                    color:
+                                        theme === "dark"
+                                            ? "#eaeaea"
+                                            : "inherit",
+                                    fontFamily:
+                                        "__Rubik_6eb173, __Rubik_Fallback_6eb173",
+                                },
+                                "& .MuiInputLabel-root": {
+                                    color:
+                                        theme === "dark" ? "#eaeaea" : "black",
+                                    fontFamily:
+                                        "__Rubik_6eb173, __Rubik_Fallback_6eb173",
+                                },
+                            }}
+                            error={unit <= 0}
                             id="unit"
                             size="small"
                             label={dict.trade.lot}
@@ -263,10 +342,24 @@ export default function EditOrderDialog({ order_type, order_id, order_tp, order_
                         />
                         <TextField
                             sx={{
-                                fontFamily: '__Rubik_6eb173, __Rubik_Fallback_6eb173',
-                                input: { color: theme === 'dark' ? '#eaeaea' : 'inherit', fontFamily: '__Rubik_6eb173, __Rubik_Fallback_6eb173', },
-                                '& .MuiInputLabel-root': { color: theme === 'dark' ? '#eaeaea' : 'black', fontFamily: '__Rubik_6eb173, __Rubik_Fallback_6eb173', },
-                            }} error={price <= 0}
+                                fontFamily:
+                                    "__Rubik_6eb173, __Rubik_Fallback_6eb173",
+                                input: {
+                                    color:
+                                        theme === "dark"
+                                            ? "#eaeaea"
+                                            : "inherit",
+                                    fontFamily:
+                                        "__Rubik_6eb173, __Rubik_Fallback_6eb173",
+                                },
+                                "& .MuiInputLabel-root": {
+                                    color:
+                                        theme === "dark" ? "#eaeaea" : "black",
+                                    fontFamily:
+                                        "__Rubik_6eb173, __Rubik_Fallback_6eb173",
+                                },
+                            }}
+                            error={price <= 0}
                             id="Open Price"
                             size="small"
                             label={dict.trade.placeholder}
@@ -274,25 +367,50 @@ export default function EditOrderDialog({ order_type, order_id, order_tp, order_
                             value={price}
                             type="number"
                             min={0}
-                            onChange={(e) => { setPrice(e.target.value) }}
+                            onChange={(e) => {
+                                setPrice(e.target.value);
+                            }}
                         />
                     </Box>
                 </DialogContent>
                 <DialogActions
                     sx={{
-                        width: '100%',
-                        display: 'flex',
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                        my: 1, fontFamily: '__Rubik_6eb173, __Rubik_Fallback_6eb173',
-                        bgcolor: theme === 'dark' ? '#263238' : 'white',
+                        width: "100%",
+                        display: "flex",
+                        justifyContent: "center",
+                        alignItems: "center",
+                        my: 1,
+                        fontFamily: "__Rubik_6eb173, __Rubik_Fallback_6eb173",
+                        bgcolor: theme === "dark" ? "#263238" : "white",
                     }}
                 >
-                    <Button disabled={price <= 0 || tp < 0 || sl < 0 || unit <= 0 || leverage <= 0 ||
-                        (order_type == 'buy' && tp < order_price && tp != 0) || (order_type == 'sell' && tp > order_price && tp != 0) || (order_type == 'buy' && sl > order_price && sl != 0) || (order_type == 'sell' && sl < order_price && sl != 0)
-
-                    }
-                        variant="contained" sx={{ fontFamily: '__Rubik_6eb173, __Rubik_Fallback_6eb173', }} onClick={onEditOrderClicked}>
+                    <Button
+                        disabled={
+                            price <= 0 ||
+                            tp < 0 ||
+                            sl < 0 ||
+                            unit <= 0 ||
+                            leverage <= 0 ||
+                            (order_type == "buy" &&
+                                tp < order_price &&
+                                tp != 0) ||
+                            (order_type == "sell" &&
+                                tp > order_price &&
+                                tp != 0) ||
+                            (order_type == "buy" &&
+                                sl > order_price &&
+                                sl != 0) ||
+                            (order_type == "sell" &&
+                                sl < order_price &&
+                                sl != 0)
+                        }
+                        variant="contained"
+                        sx={{
+                            fontFamily:
+                                "__Rubik_6eb173, __Rubik_Fallback_6eb173",
+                        }}
+                        onClick={onEditOrderClicked}
+                    >
                         {dict.price.modify}
                     </Button>
                 </DialogActions>

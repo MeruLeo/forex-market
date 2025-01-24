@@ -16,6 +16,7 @@ import { useAppContext } from "@/context";
 import BorderColorIcon from '@mui/icons-material/BorderColor';
 import Divider from '@mui/material/Divider';
 import Cookies from "js-cookie"
+import axiosInstance from '@/utils/axiosInstance';
 
 const BootstrapDialog = styled(Dialog)(({ theme }) => ({
     '& .MuiDialogContent-root': {
@@ -45,73 +46,65 @@ export default function EditPositionDialog({ order_id,order_type,current_price,o
         setOpen(false);
     };
 
-    const onEditOrderClicked = async () => {
-        handleClose()
-        setSendingModify(true)
-        try {
-            const data = {
-                token: Cookies.get("access"),
-                ticket: order_ticket,
-                id: order_id,
-                sl: sl,
-                tp: tp,
-            };
-            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/mt5/modify`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-Source': 'nextjs',
-                },
-                body: JSON.stringify(data),
-            });
+   const onEditOrderClicked = async () => {
+       handleClose();
+       setSendingModify(true);
+       try {
+           const data = {
+               token: Cookies.get("access"),
+               ticket: order_ticket,
+               id: order_id,
+               sl: sl,
+               tp: tp,
+           };
+           const response = await axiosInstance.post(
+               `${process.env.NEXT_PUBLIC_API_URL}/mt5/modify`,
+               data,
+           );
 
-            const res = await response.json();
+           const res = response.data;
 
-            if (response.status === 200) {
-                toast(dict.trade.modify_success);
-                setOpen(false);
-                // setTimeout(() => {
-                    setSendingModify(false);
-                // }, 2000);
-                
-                return;
-            }
-            if (!response.ok) {
-                 try{
-                    if (res.error=="Edit trade or orders are currently disallowed"){
-                        toast(dict.order.errors.edit_disallowed)
-                        setSendingModify(false);
-                        setOpen(false);
-                        return;
-                    }
-                    }catch{}
+           if (response.status === 200) {
+               toast(dict.trade.modify_success);
+               setOpen(false);
+               setSendingModify(false);
+               return;
+           }
 
-                try{
-                    if (res.error=="The amount of TP is not allowed"){
-                        toast(dict.order.errors.wrong_tp)
-                        setSendingModify(false);
-                        setOpen(false);
-                        return;
-                    }else if (res.error=="The amount of SL is not allowed"){
-                        toast(dict.order.errors.wrong_sl)
-                        setSendingModify(false);
-                        setOpen(false);
-                        return;
-                    }
-                }catch{}
-                toast(res.error);
-                // setTimeout(() => {
-                    setSendingModify(false);
-                // }, 2000);
-                return;
-            }
-        } catch (error) {
-            toast(dict.order.errors.order_error);
-            // setTimeout(() => {
-                setSendingModify(false);
-            // }, 2000);
-        }
-    };
+           if (response.status !== 200) {
+               if (
+                   res.error === "Edit trade or orders are currently disallowed"
+               ) {
+                   toast(dict.order.errors.edit_disallowed);
+                   setSendingModify(false);
+                   setOpen(false);
+                   return;
+               }
+
+               if (res.error === "The amount of TP is not allowed") {
+                   toast(dict.order.errors.wrong_tp);
+                   setSendingModify(false);
+                   setOpen(false);
+                   return;
+               }
+
+               if (res.error === "The amount of SL is not allowed") {
+                   toast(dict.order.errors.wrong_sl);
+                   setSendingModify(false);
+                   setOpen(false);
+                   return;
+               }
+
+               toast(res.error);
+               setSendingModify(false);
+               return;
+           }
+       } catch (error) {
+           toast(dict.order.errors.order_error);
+           setSendingModify(false);
+       }
+   };
+
 
     return (
         <React.Fragment>

@@ -5,6 +5,7 @@ import EditOrderDialog from "./EditOrderDialog"; // فرض می‌کنم این 
 import { toast } from "sonner";
 import { useConfirmationDialog } from "../../hooks/useConfirmationDialog";
 import Cookies from "js-cookie";
+import axiosInstance from "@/utils/axiosInstance";
 
 const OrderCard = ({ order, dict, idx }) => {
     const { confirm, ConfirmationDialogComponent } = useConfirmationDialog();
@@ -18,22 +19,15 @@ const OrderCard = ({ order, dict, idx }) => {
                 token: Cookies.get("access"),
                 id: id,
             };
-            const response = await fetch(
+            const response = await axiosInstance.post(
                 `${process.env.NEXT_PUBLIC_API_URL}/mt5/close_order`,
-                {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                    body: JSON.stringify(data),
-                },
+                data,
             );
 
-            const res = await response.json();
+            const res = response.data;
             if (!response.ok) {
                 toast(res.error);
                 setSendingClose(false);
-
                 return;
             }
             setSendingClose(false);

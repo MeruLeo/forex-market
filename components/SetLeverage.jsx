@@ -12,6 +12,7 @@ import Divider from "@mui/material/Divider";
 import ModeStandbyIcon from "@mui/icons-material/ModeStandby";
 import IconButton from "@mui/material/IconButton";
 import Cookies from "js-cookie";
+import axiosInstance from "@/utils/axiosInstance";
 
 const BootstrapDialog = styled(Dialog)(({ theme }) => ({
     "& .MuiDialogContent-root": {
@@ -59,30 +60,26 @@ const SetLeverage = ({ dict, symbols }) => {
     const get_pair_leverage = async (pair) => {
         setIsLoading(true);
         try {
-            const response = await fetch(
-                `${process.env.NEXT_PUBLIC_API_URL2}/get-user-leverage`,
-                {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                    body: JSON.stringify({
-                        token: Cookies.get("access"),
-                        pair: pair,
-                    }),
-                },
-            );
-            if (response.ok) {
-                const data = await response.json();
-                setLeverage(data.leverage);
-                setIsLoading(false);
-            } else {
-                const data = await response.json();
-                setError(data.message || "Failed to get Leverage.");
-                toast(data.message || "Failed to get Leverage.");
-                setIsLoading(false);
-            }
-        } catch (error) {
+    const response = await axiosInstance.post("/get-user-leverage", {
+        token: Cookies.get("access"),
+        pair: pair,
+    });
+
+    const data = response.data;
+    setLeverage(data.leverage);
+    setIsLoading(false);
+} catch (error) {
+    setIsLoading(false);
+
+    if (error.response) {
+        const data = error.response.data;
+        setError(data.message || "Failed to get Leverage.");
+        toast(data.message || "Failed to get Leverage.");
+    } else {
+        toast("An error occurred");
+    }
+}
+ catch (error) {
             toast("An error occurred while getting Leverage.");
             setIsLoading(false);
         }
@@ -104,30 +101,24 @@ const SetLeverage = ({ dict, symbols }) => {
         }
 
         try {
-            const response = await fetch(
-                `${process.env.NEXT_PUBLIC_API_URL2}/set-user-leverage`,
-                {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                    body: JSON.stringify({
-                        token: Cookies.get("access"),
-                        leverage: leverage,
-                        pair: pair,
-                    }),
-                },
-            );
+    const response = await axiosInstance.post("/set-user-leverage", {
+        token: Cookies.get("access"),
+        leverage: leverage,
+        pair: pair,
+    });
 
-            if (response.ok) {
-                toast(dict.leverage.success);
-                toggleModal();
-            } else {
-                const data = await response.json();
-                setError(data || dict.leverage.faild);
-                toast(data || dict.leverage.faild);
-            }
-        } catch (error) {
+    toast(dict.leverage.success);
+    toggleModal();
+} catch (error) {
+    if (error.response) {
+        const data = error.response.data;
+        setError(data || dict.leverage.failed);
+        toast(data || dict.leverage.failed);
+    } else {
+        toast("An error occurred");
+    }
+}
+ catch (error) {
             toast(dict.leverage._500);
         }
     };

@@ -12,6 +12,7 @@ import { useTheme } from "next-themes";
 import Button from "@mui/material/Button";
 import Divider from "@mui/material/Divider";
 import { Checkbox } from "./shadcn/checkbox";
+import axiosInstance from "@/utils/axiosInstance";
 
 const BootstrapDialog = styled(Dialog)(({ theme }) => ({
     "& .MuiDialogContent-root": {
@@ -49,24 +50,23 @@ const CopyTrade = ({ dict, symbols }) => {
         const token = Cookies.get("access");
 
         try {
-            const response = await fetch(
+            const response = await axiosInstance.post(
                 `${process.env.NEXT_PUBLIC_API_URL2}/remove-copy-from`,
                 {
-                    method: "POST",
+                    token: token,
+                },
+                {
                     headers: {
                         "Content-Type": "application/json",
                     },
-                    body: JSON.stringify({
-                        token: token,
-                    }),
                 },
             );
 
-            if (response.ok) {
+            if (response.status === 200) {
                 setIs_loading(false);
                 toast(dict.copy_trade.success_remove);
 
-                const data = await response.json();
+                const data = response.data;
                 setCurrentCopyFrom(data.copy_from || "-");
                 setCurrentCopyUnits(data.max_unit || 1);
                 setCurrentCopyReverse(data.reverse || false);
@@ -94,57 +94,49 @@ const CopyTrade = ({ dict, symbols }) => {
         const token = Cookies.get("access");
 
         try {
-            const response = await fetch(
-                `${process.env.NEXT_PUBLIC_API_URL2}/set-copy-from`,
-                {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                    body: JSON.stringify({
-                        token: token,
-                        username: new_copy_from,
-                        symbol_id: new_copy_symbol,
-                        reverse: new_copy_reverse,
-                        max_units: new_copy_unit,
-                    }),
-                },
-            );
+            const response = await axiosInstance.post("/set-copy-from", {
+                token: token,
+                username: new_copy_from,
+                symbol_id: new_copy_symbol,
+                reverse: new_copy_reverse,
+                max_units: new_copy_unit,
+            });
 
-            if (response.ok) {
-                setIs_loading(false);
-                toast("success");
+            // اگر درخواست موفقیت آمیز بود
+            setIs_loading(false);
+            toast("success");
 
-                const data = await response.json();
-                setCurrentCopyFrom(data.copy_from || "-");
-                setCurrentCopyUnits(data.max_unit || 1);
-                setCurrentCopyReverse(data.reverse || false);
-                setCurrentCopySymbol(data.symbol.name || "-");
-                setNewCopyFrom("-");
-                setNewCopyUnit(1);
-                setNewCopySymbol("-");
-                setNewCopyReverse(false);
-                setIs_loading(false);
-                setOpen(false);
-            } else {
-                setIs_loading(false);
-
-                if (response.status === 400) {
-                    const data = await response.json();
-                    if (data.symbol_id) {
-                        toast(dict.copy_trade.symbol_not_exists);
-                    } else if (data.message === "symbol_not_found") {
-                        toast(dict.copy_trade.symbol_not_exists);
-                    } else if (data.message === "user_not_found") {
-                        toast(dict.copy_trade.user_not_exists);
-                    }
-                } else {
-                    toast(data.message || "Failed.");
-                }
-            }
+            const data = response.data;
+            setCurrentCopyFrom(data.copy_from || "-");
+            setCurrentCopyUnits(data.max_unit || 1);
+            setCurrentCopyReverse(data.reverse || false);
+            setCurrentCopySymbol(data.symbol.name || "-");
+            setNewCopyFrom("-");
+            setNewCopyUnit(1);
+            setNewCopySymbol("-");
+            setNewCopyReverse(false);
+            setIs_loading(false);
+            setOpen(false);
         } catch (error) {
             setIs_loading(false);
-            toast("An error occurred");
+
+            if (error.response?.status === 400) {
+                const data = error.response.data;
+                if (data.symbol_id) {
+                    toast(dict.copy_trade.symbol_not_exists);
+                } else if (data.message === "symbol_not_found") {
+                    toast(dict.copy_trade.symbol_not_exists);
+                } else if (data.message === "user_not_found") {
+                    toast(dict.copy_trade.user_not_exists);
+                }
+            } else {
+                toast(error.response?.data?.message || "Failed.");
+            }
+
+            // اگر خطای دیگری رخ داد
+            if (!error.response) {
+                toast("An error occurred");
+            }
         }
     };
 
@@ -152,44 +144,39 @@ const CopyTrade = ({ dict, symbols }) => {
         setIs_loading(true);
         const token = Cookies.get("access");
         try {
-            const response = await fetch(
-                `${process.env.NEXT_PUBLIC_API_URL2}/get-copy-from`,
-                {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                    body: JSON.stringify({
-                        token: token,
-                    }),
-                },
-            );
+    const response = await axiosInstance.post("/get-copy-from", {
+        token: token,
+    });
 
-            if (response.ok) {
-                const data = await response.json();
-                setCurrentCopyFrom(data.copy_from || "-");
-                setCurrentCopyUnits(data.max_unit || 1);
-                setCurrentCopyReverse(data.reverse || false);
-                setCurrentCopySymbol(data.symbol ? data.symbol.name : "-");
-                setNewCopyFrom("-");
-                setNewCopyUnit(1);
-                setNewCopySymbol("-");
-                setNewCopyReverse(false);
-                setIs_loading(false);
-            } else {
-                setIs_loading(false);
-                setCurrentCopyFrom("-");
-                setCurrentCopyUnits(1);
-                setCurrentCopyReverse(false);
-                setCurrentCopySymbol(symbol.name);
-                setNewCopyFrom("-");
-                setNewCopyUnit(1);
-                setNewCopySymbol("-");
-                setNewCopyReverse(false);
-                const data = await response.json();
-                toast(data.message || "Failed.");
-            }
-        } catch (error) {
+    const data = response.data;
+    setCurrentCopyFrom(data.copy_from || "-");
+    setCurrentCopyUnits(data.max_unit || 1);
+    setCurrentCopyReverse(data.reverse || false);
+    setCurrentCopySymbol(data.symbol ? data.symbol.name : "-");
+    setNewCopyFrom("-");
+    setNewCopyUnit(1);
+    setNewCopySymbol("-");
+    setNewCopyReverse(false);
+    setIs_loading(false);
+} catch (error) {
+    setIs_loading(false);
+    setCurrentCopyFrom("-");
+    setCurrentCopyUnits(1);
+    setCurrentCopyReverse(false);
+    setCurrentCopySymbol(symbol.name || "-");
+    setNewCopyFrom("-");
+    setNewCopyUnit(1);
+    setNewCopySymbol("-");
+    setNewCopyReverse(false);
+
+    if (error.response) {
+        const data = error.response.data;
+        toast(data.message || "Failed.");
+    } else {
+        toast("An error occurred");
+    }
+}
+ catch (error) {
             console.log(error);
             setIs_loading(false);
             setCurrentCopyFrom("-");

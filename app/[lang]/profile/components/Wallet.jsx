@@ -12,6 +12,7 @@ import { useTheme } from 'next-themes';
 import Button from '@mui/material/Button';
 import Divider from '@mui/material/Divider';
 import Cookies from "js-cookie"
+import axiosInstance from '@/utils/axiosInstance';
 
 
 const BootstrapDialog = styled(Dialog)(({ theme }) => ({
@@ -58,32 +59,34 @@ const Wallet = ({ dict }) => {
     const token = Cookies.get("access")
 
     try {
-        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL2}/take-from-wallet`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-            token: token,
-            amount: amount,
-        }),
-      });
+        const response = await axiosInstance.post(
+            `${process.env.NEXT_PUBLIC_API_URL2}/take-from-wallet`,
+            {
+                token: token,
+                amount: amount,
+            },
+            {
+                headers: {
+                    "Content-Type": "application/json",
+                },
+            },
+        );
 
-      if (response.ok) {
-        setIs_loading(false)
-        toast("success")
-        getWallet()
-      } else {
-        setIs_loading(false)
-        if (response.status === 406) {
-          toast(dict.wallet.faild_wallet_amount)
-        }else{
-          toast('Failed.');
+        if (response.status === 200) {
+            setIs_loading(false);
+            toast("success");
+            getWallet();
+        } else {
+            setIs_loading(false);
+            if (response.status === 406) {
+                toast(dict.wallet.faild_wallet_amount);
+            } else {
+                toast("Failed.");
+            }
         }
-      }
     } catch (error) {
-        setIs_loading(false)
-        toast('An error occurred');
+        setIs_loading(false);
+        toast("An error occurred");
     }
   };
 
@@ -97,38 +100,41 @@ const Wallet = ({ dict }) => {
     const token = Cookies.get("access")
 
     try {
-        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL2}/add-to-wallet`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-            token: token,
-            amount: amount,
-        }),
-      });
+        const response = await axiosInstance.post(
+            `${process.env.NEXT_PUBLIC_API_URL2}/add-to-wallet`,
+            {
+                token,
+                amount,
+            },
+            {
+                headers: {
+                    "Content-Type": "application/json",
+                },
+            },
+        );
 
-      if (response.ok) {
-        setIs_loading(false)
-        toast("success")
-        getWallet()
-        
-      } else {
-        setIs_loading(false)
-        if (response.status === 406) {
-          const data = await response.json();
-          if(data.message=='faild_open_trade'){
-            toast(dict.wallet.faild_open_trade)
-          }else if (data.message=='faild_balance_amount'){
-            toast(dict.wallet.faild_balance_amount)
-          }
-        }else{
-          toast(data.message || 'Failed.');
+        if (response.status === 200) {
+            setIs_loading(false);
+            toast("success");
+            getWallet();
+        } else {
+            setIs_loading(false);
+            if (response.status === 406) {
+                const data = response.data;
+                if (data.message === "faild_open_trade") {
+                    toast(dict.wallet.faild_open_trade);
+                } else if (data.message === "faild_balance_amount") {
+                    toast(dict.wallet.faild_balance_amount);
+                } else {
+                    toast(data.message || "Failed.");
+                }
+            } else {
+                toast("Failed.");
+            }
         }
-      }
     } catch (error) {
-        setIs_loading(false)
-        toast('An error occurred');
+        setIs_loading(false);
+        toast("An error occurred");
     }
   };
 
@@ -136,41 +142,42 @@ const Wallet = ({ dict }) => {
     setIs_loading(true)
     const token = Cookies.get("access")
     try {
-        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL2}/user-wallet`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-            token: token,
-        }),
-      });
+        const response = await axiosInstance.post(
+            `${process.env.NEXT_PUBLIC_API_URL2}/user-wallet`,
+            {
+                token: token,
+            },
+            {
+                headers: {
+                    "Content-Type": "application/json",
+                },
+            },
+        );
 
-      if (response.ok) {
-        const data = await response.json();
-        setWalletAmount(data.amount.toFixed(2))
-        setWalletUpdate(data.updated_at)
-        setBalance(data.balance.toFixed(2))
-        setAmount(0.0)
-        setIs_loading(false)
-      } else {
-        setIs_loading(false)
-        setWalletAmount(0)
-        setAmount(0.0)
-        setBalance(0.0)
-        setWalletUpdate('----/--/--')
-        const data = await response.json();
-        setError(data.message || 'Failed.');
-        toast(data.message || 'Failed.');
-
-      }
+        if (response.status === 200) {
+            const data = response.data;
+            setWalletAmount(data.amount.toFixed(2));
+            setWalletUpdate(data.updated_at);
+            setBalance(data.balance.toFixed(2));
+            setAmount(0.0);
+            setIs_loading(false);
+        } else {
+            setIs_loading(false);
+            setWalletAmount(0);
+            setAmount(0.0);
+            setBalance(0.0);
+            setWalletUpdate("----/--/--");
+            const data = response.data;
+            setError(data.message || "Failed.");
+            toast(data.message || "Failed.");
+        }
     } catch (error) {
-        setIs_loading(false)
-        setWalletAmount(0)
-        setBalance(0.0)
-        setWalletUpdate('----/--/--')
-        setAmount(0.0)
-        toast('An error occurred');
+        setIs_loading(false);
+        setWalletAmount(0);
+        setBalance(0.0);
+        setWalletUpdate("----/--/--");
+        setAmount(0.0);
+        toast("An error occurred");
     }
   };
 

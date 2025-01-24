@@ -11,6 +11,7 @@ import Divider from "@mui/material/Divider";
 import { LogoutUser } from "@/lib/logout";
 import IconButton from "@mui/material/IconButton";
 import KeyIcon from "@mui/icons-material/Key";
+import axiosInstance from "@/utils/axiosInstance";
 
 const BootstrapDialog = styled(Dialog)(({ theme }) => ({
     "& .MuiDialogContent-root": {
@@ -42,31 +43,28 @@ const ChangePasswordModal = ({ dict }) => {
         }
 
         try {
-            const response = await fetch(
+            const response = await axiosInstance.post(
                 `${process.env.NEXT_PUBLIC_API_URL2}/change-password`,
                 {
-                    method: "POST",
+                    token: Cookies.get("access"),
+                    old_password: oldPassword,
+                    new_password: newPassword,
+                },
+                {
                     headers: {
                         "Content-Type": "application/json",
                     },
-                    body: JSON.stringify({
-                        token: Cookies.get("access"),
-                        old_password: oldPassword,
-                        new_password: newPassword,
-                    }),
                 },
             );
 
-            if (response.ok) {
+            if (response.status === 200) {
                 toast("Password changed successfully. You will be logged out.");
                 LogoutUser();
                 window.location.href = "/";
-
                 // toggleModal(); // Close modal
             } else {
-                const data = await response.json();
-                setError(data.message || "Failed to change password.");
-                toast(data.message || "Failed to change password.");
+                setError(response.data.message || "Failed to change password.");
+                toast(response.data.message || "Failed to change password.");
             }
         } catch (error) {
             toast("An error occurred while changing password.");

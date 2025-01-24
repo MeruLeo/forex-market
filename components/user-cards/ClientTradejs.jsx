@@ -27,6 +27,7 @@ import { toast } from "sonner";
 import { Grid2 } from "@mui/material";
 import IconButton from "@mui/material/IconButton";
 import Cookies from "js-cookie";
+import axiosInstance from "@/utils/axiosInstance";
 
 function calculateTotalProfit(items) {
     return items.reduce((total, item) => {
@@ -175,23 +176,22 @@ const ClientTrade = ({ dict, trades, stat, pending, symbols }) => {
             sl: sl || 0,
             tp: tp || 0,
         };
-        try {
-            const response = await fetch(
-                `${process.env.NEXT_PUBLIC_API_URL}/mt5/trade`,
-                {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                        "X-Source": "nextjs",
+        const place_trade = async (data) => {
+            try {
+                const response = await axiosInstance.post(
+                    `${process.env.NEXT_PUBLIC_API_URL}/mt5/trade`,
+                    data,
+                    {
+                        headers: {
+                            "Content-Type": "application/json",
+                            "X-Source": "nextjs",
+                        },
                     },
-                    body: JSON.stringify(data),
-                },
-            );
+                );
 
-            if (response.ok) {
-                try {
-                    const data = await response.json();
-                    if (data.message == "trade stored succes") {
+                if (response.status === 200) {
+                    const data = response.data;
+                    if (data.message === "trade stored succes") {
                         toast(dict.order.success);
                         setPrice(0);
                         setUnit(1);
@@ -207,62 +207,58 @@ const ClientTrade = ({ dict, trades, stat, pending, symbols }) => {
                         setIsLoading(false);
                         return;
                     }
-                } catch {}
-                toast(dict.trade.success);
-                setPrice(0);
-                setUnit(1);
-                setLeverage(1);
-                setSl(0);
-                setTp(0);
-                if (symbols_list.length > 0) {
-                    setSymbolToTrade(symbols_list[0].id);
+
+                    toast(dict.trade.success);
+                    setPrice(0);
+                    setUnit(1);
+                    setLeverage(1);
+                    setSl(0);
+                    setTp(0);
+                    if (symbols_list.length > 0) {
+                        setSymbolToTrade(symbols_list[0].id);
+                    } else {
+                        setSymbolToTrade("");
+                    }
+                    setMarketPrice(false);
                 } else {
-                    setSymbolToTrade("");
-                }
-                setMarketPrice(false);
-            } else {
-                try {
-                    const errorData = await response.json();
+                    const errorData = response.data;
                     if (
-                        errorData.error ==
+                        errorData.error ===
                         "New trade or orders are currently disallowed"
                     ) {
                         toast(dict.trade.errors.new_trade_disallowed);
                         return;
                     }
                     if (
-                        errorData.error ==
+                        errorData.error ===
                         "You can only buy or sell in one symbol at a time."
                     ) {
                         toast(dict.trade.errors.same_trade_error);
                         return;
                     }
-                    if (errorData.error == "not enough balance") {
+                    if (errorData.error === "not enough balance") {
                         toast(dict.trade.errors.balance);
                         return;
                     }
-                    try {
-                        if (res.error == "The amount of TP is not allowed") {
-                            toast(dict.order.errors.wrong_tp);
-                            return;
-                        } else if (
-                            res.error == "The amount of SL is not allowed"
-                        ) {
-                            toast(dict.order.errors.wrong_sl);
-                            return;
-                        }
-                    } catch {}
+
+                    if (errorData.error === "The amount of TP is not allowed") {
+                        toast(dict.order.errors.wrong_tp);
+                        return;
+                    } else if (
+                        errorData.error === "The amount of SL is not allowed"
+                    ) {
+                        toast(dict.order.errors.wrong_sl);
+                        return;
+                    }
+
                     toast(errorData.error);
-                } catch {
-                    toast(response);
-                    toast(dict.trade.sth_went_wrong);
                 }
+            } catch (error) {
+                toast(dict.trade.sth_went_wrong);
+            } finally {
+                setIsLoading(false);
             }
-        } catch (error) {
-            toast(dict.trade.sth_went_wrong);
-        } finally {
-            setIsLoading(false);
-        }
+        };
     };
 
     return (

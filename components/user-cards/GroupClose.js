@@ -13,6 +13,7 @@ import { useTheme } from 'next-themes';
 import Divider from '@mui/material/Divider';
 import { useConfirmationDialog } from '../../hooks/useConfirmationDialog'
 import Cookies from 'js-cookie';
+import axiosInstance from '@/utils/axiosInstance';
 
 const BootstrapDialog = styled(Dialog)(({ theme }) => ({
     '& .MuiDialogContent-root': {
@@ -38,39 +39,36 @@ export default function GroupClose({ dict }) {
     };
 
     const onEditOrderClicked = async (target) => {
-        handleClose()
+        handleClose();
         try {
             const data = {
                 token: Cookies.get("access"),
             };
-            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/mt5/${target}`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(data),
-            });
+            const response = await axiosInstance.post(
+                `${process.env.NEXT_PUBLIC_API_URL}/mt5/${target}`,
+                data,
+            );
 
-            const res = await response.json();
+            const res = response.data;
 
             if (response.status === 200) {
-
-                if(res.message=="succes closing all"){
+                if (res.message === "succes closing all") {
                     toast(dict.confirmation.success_close_all_trades);
-                }else if(res.message=="succes closing profit"){
+                } else if (res.message === "succes closing profit") {
                     toast(dict.confirmation.success_close_profits_trades);
-                }else if(res.message=="succes closing loss"){
+                } else if (res.message === "succes closing loss") {
                     toast(dict.confirmation.success_close_loss_trades);
-                }else if(res.message=="succes closing sells"){
+                } else if (res.message === "succes closing sells") {
                     toast(dict.confirmation.success_close_sells_trades);
-                }else if(res.message=="succes closing buys"){
+                } else if (res.message === "succes closing buys") {
                     toast(dict.confirmation.success_close_buys_trades);
-                }else{
+                } else {
                     toast(res.message);
                 }
                 setOpen(false);
                 return;
             }
+
             if (!response.ok) {
                 toast(res.error);
                 return;
@@ -79,6 +77,7 @@ export default function GroupClose({ dict }) {
             toast(dict.order.errors.order_error);
         }
     };
+
 
     return (
         <React.Fragment>

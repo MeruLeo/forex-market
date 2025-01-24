@@ -18,6 +18,7 @@ import TimePicker from "react-multi-date-picker/plugins/time_picker";
 import { Locale } from "@/i18n.config";
 import { useRouter } from "next/navigation";
 import Cookies from "js-cookie";
+import axiosInstance from "@/utils/axiosInstance";
 
 const rubik = Rubik({ subsets: ["arabic"] });
 
@@ -64,15 +65,13 @@ export default function ProfilePage({
         const data = {
             token: token,
         };
-        const response = await fetch(
+        const response = await axiosInstance.post(
             `${process.env.NEXT_PUBLIC_API_URL}/account/verify_token`,
+            data,
             {
-                method: "POST",
                 headers: {
-                    "Content-Type": "application/json",
                     Authorization: `Bearer ${token}`,
                 },
-                body: JSON.stringify(data),
             },
         );
 
@@ -107,25 +106,16 @@ export default function ProfilePage({
             const token = Cookies.get("access");
             await verifyToken(token);
             try {
-                const response = await fetch(
+                const response = await axiosInstance.post(
                     `${process.env.NEXT_PUBLIC_API_URL2}/profile`,
                     {
-                        method: "POST",
-                        headers: {
-                            "Content-Type": "application/json",
-                        },
-                        body: JSON.stringify({
-                            token: Cookies.get("access"),
-                            date1: startTime,
-                            date2: endTime,
-                        }),
+                        token: Cookies.get("access"),
+                        date1: startTime,
+                        date2: endTime,
                     },
                 );
-                let res = await response.json();
-                if (!response.ok) {
-                    toast("somthing went wrong!");
-                    return;
-                }
+
+                const res = response.data;
                 setProfile(res.user_profile);
                 setAccount(res.user_profile);
 
@@ -146,21 +136,14 @@ export default function ProfilePage({
             try {
                 const token = Cookies.get("access");
                 await verifyToken(token);
-                const response = await fetch(
+                const response = await axiosInstance.post(
                     `${process.env.NEXT_PUBLIC_API_URL2}/profile`,
                     {
-                        method: "POST",
-                        headers: {
-                            "Content-Type": "application/json",
-                        },
-                        body: JSON.stringify({ token: Cookies.get("access") }),
+                        token: Cookies.get("access"),
                     },
                 );
-                let res = await response.json();
-                if (!response.ok) {
-                    toast("somthing went wrong!");
-                    return;
-                }
+
+                const res = response.data;
                 setProfile(res.user_profile);
                 setAccount(res.user_profile);
 

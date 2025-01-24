@@ -13,6 +13,7 @@ import { useTheme } from "next-themes";
 import Divider from "@mui/material/Divider";
 import { useConfirmationDialog } from "../../hooks/useConfirmationDialog";
 import Cookies from "js-cookie";
+import axiosInstance from "@/utils/axiosInstance";
 
 const BootstrapDialog = styled(Dialog)(({ theme }) => ({
     "& .MuiDialogContent-root": {
@@ -42,25 +43,19 @@ export default function GroupClosePendings({ dict }) {
             const data = {
                 token: Cookies.get("access"),
             };
-            const response = await fetch(
+            const response = await axiosInstance.post(
                 `${process.env.NEXT_PUBLIC_API_URL}/mt5/${target}`,
-                {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                    body: JSON.stringify(data),
-                },
+                data,
             );
 
-            const res = await response.json();
+            const res = response.data;
 
             if (response.status === 200) {
-                if (res.message == "succes closing pendings") {
+                if (res.message === "succes closing pendings") {
                     toast(dict.confirmation.success_close_all_futures);
-                } else if (res.message == "succes closing buy pendings") {
+                } else if (res.message === "succes closing buy pendings") {
                     toast(dict.confirmation.success_close_buy_futures);
-                } else if (res.message == "succes closing sell pendings") {
+                } else if (res.message === "succes closing sell pendings") {
                     toast(dict.confirmation.success_close_sell_futures);
                 } else {
                     toast(res.message);
@@ -68,6 +63,7 @@ export default function GroupClosePendings({ dict }) {
                 setOpen(false);
                 return;
             }
+
             if (!response.ok) {
                 toast(res.error);
                 return;

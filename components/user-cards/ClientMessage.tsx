@@ -20,6 +20,7 @@ import { toast } from "sonner";
 import { MdDeleteOutline } from "react-icons/md";
 import { useAppContext } from "@/context";
 import Cookies from "js-cookie";
+import axiosInstance from "@/utils/axiosInstance";
 
 const ClientMessage = ({
     dict,
@@ -41,20 +42,15 @@ const ClientMessage = ({
 
     const handleDeleteMessage = async (id: string) => {
         try {
-            const response = await fetch(
+            const response = await axiosInstance.post(
                 `${process.env.NEXT_PUBLIC_API_URL}/message/delete`,
                 {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                    body: JSON.stringify({
-                        token: Cookies.get("access"),
-                        id: id,
-                    }),
+                    token: Cookies.get("access"),
+                    id: id,
                 },
             );
-            if (response.ok) {
+
+            if (response.status === 200) {
                 setMessages(messages.filter((msg: any) => msg.id !== id));
             }
         } catch (error) {
@@ -92,23 +88,16 @@ const ClientMessage = ({
     useEffect(() => {
         const get_messagees = async () => {
             try {
-                const response = await fetch(
+                const response = await axiosInstance.post(
                     `${process.env.NEXT_PUBLIC_API_URL}/message/messages`,
-                    {
-                        method: "POST",
-                        headers: {
-                            "Content-Type": "application/json",
-                        },
-                        body: JSON.stringify({ token: Cookies.get("access") }),
-                    },
+                    { token: Cookies.get("access") },
                 );
 
-                const res = await response.json();
-                if (!response.ok) {
-                    toast(res.error);
-                    return;
+                if (response.status === 200) {
+                    setMessages(response.data);
+                } else {
+                    toast(response.data.error);
                 }
-                setMessages(res);
             } catch (error) {
                 toast(dict.history.errors.order_error);
             }
@@ -251,23 +240,19 @@ export const MessageItem = ({
             return;
         }
 
-        try {
-            const response = await fetch(
-                `${process.env.NEXT_PUBLIC_API_URL}/message/set_read`,
-                {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                    body: JSON.stringify({
+        const set_read_message = async (id: string) => {
+            try {
+                const response = await axiosInstance.post(
+                    `${process.env.NEXT_PUBLIC_API_URL}/message/set_read`,
+                    {
                         token: Cookies.get("access"),
                         id: id,
-                    }),
-                },
-            );
-        } catch (error) {
-            console.error("Error during POST request:", error);
-        }
+                    },
+                );
+            } catch (error) {
+                console.error("Error during POST request:", error);
+            }
+        };
     };
 
     const handle_delete_message = () => {

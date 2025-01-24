@@ -2,6 +2,7 @@ import { jwtDecode } from "jwt-decode";
 import { LogoutUser } from "./logout";
 import { useRouter } from "next/navigation";
 import Cookies from "js-cookie";
+import axiosInstance from "@/utils/axiosInstance";
 
 interface DecodedToken {
     exp: number; // Expiration time in seconds
@@ -19,19 +20,18 @@ export async function verify_token() {
         token,
     };
     try {
-        const response = await fetch(
+        const response = await axiosInstance.post(
             `${process.env.NEXT_PUBLIC_API_URL}/account/verify_token`,
+            data,
             {
-                method: "POST",
                 headers: {
                     "Content-Type": "application/json",
                     "X-Source": "nextjs",
                 },
-                body: JSON.stringify(data),
             },
         );
 
-        if (response.status != 202) {
+        if (response.status !== 202) {
             Cookies.remove("access");
             console.error("No authentication token found!");
             return false;

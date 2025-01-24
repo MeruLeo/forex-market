@@ -15,6 +15,8 @@ import { Dialog, DialogContent } from "../shadcn/dialog";
 import "./captcha.css";
 import ReCAPTCHA from "react-google-recaptcha";
 import Cookies from "js-cookie";
+import axiosInstance from "@/utils/axiosInstance";
+import axios from "axios";
 
 export function SignupFormDemo({ dict, lang }: { dict: any; lang: string }) {
     let token = "";
@@ -71,13 +73,9 @@ export function SignupFormDemo({ dict, lang }: { dict: any; lang: string }) {
     }, []);
     const fetchConf = async () => {
         try {
-            const response = await fetch(
-                `${process.env.NEXT_PUBLIC_API_URL2}/get-site-config`,
-            );
-            let res = await response.json();
-            if (!response.ok) {
-                return;
-            }
+            const response = await axiosInstance.get("/get-site-config");
+
+            const res = response.data;
             setNeedSmsVerify(res.sms_verification);
             setValidatePhone(res.validate_phone);
         } catch (error) {
@@ -164,25 +162,23 @@ export function SignupFormDemo({ dict, lang }: { dict: any; lang: string }) {
             // referer:referer,
         };
         try {
-            const response = await fetch(
+            const response = await axiosInstance.post(
                 `${process.env.NEXT_PUBLIC_API_URL}/account/signup`,
+                data,
                 {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                    body: JSON.stringify(data),
+                    headers: { "Content-Type": "application/json" },
                 },
             );
 
-            if (response.ok) {
-                const responseData = await response.json();
+            if (response.status === 200) {
+                const responseData = response.data;
                 setPhone(responseData.phone_number);
                 setErrorUser2(null);
                 setErrorReal_name(null);
                 setErrorPhone2(null);
                 setErrorp12(null);
                 setErrorp22(null);
+
                 if (needSmsVerify) {
                     setOpenDialog(true);
                 } else {
@@ -190,56 +186,53 @@ export function SignupFormDemo({ dict, lang }: { dict: any; lang: string }) {
                     setTimeout(() => {
                         window.location.reload();
                     }, 2000);
+
                     const Logindata = {
                         phone_number: phone_number,
                         password: password,
                     };
 
                     try {
-                        const loginResponse = await fetch(
+                        const loginResponse = await axios.post(
                             `${process.env.NEXT_PUBLIC_API_URL}/account/login`,
+                            Logindata,
                             {
-                                method: "POST",
-                                headers: {
-                                    "Content-Type": "application/json",
-                                },
-                                body: JSON.stringify(Logindata),
+                                headers: { "Content-Type": "application/json" },
                             },
                         );
-                        if (loginResponse.ok) {
-                            setUser(loginResponse);
-                            token = await loginResponse.json();
+
+                        if (loginResponse.status === 200) {
+                            const token = loginResponse.data;
+                            setUser(token);
                             Cookies.set("access", token);
                             openToast();
                         } else {
-                            const errorData = await loginResponse.json();
+                            const errorData = loginResponse.data;
                             Cookies.remove("access");
-                            if (errorData.username) {
-                                setErrorUser2(errorData.username);
-                            }
+                            setErrorUser2(
+                                errorData.username || "Login failed.",
+                            );
                         }
-                    } catch (error: any) {
+                    } catch (error) {
+                        console.error("Login Error:", error);
                         Cookies.remove("access");
-                        setError2(error.message);
+                        setError2("An unexpected error occurred during login.");
+                        toast("An unexpected error occurred during login.");
                     }
                 }
             } else {
-                const errorData = await response.json();
+                const errorData = response.data;
                 Cookies.remove("access");
-                if (errorData.username) {
-                    setErrorUser2(errorData.username);
-                } else {
-                    setErrorUser2(null);
-                }
-                if (errorData.phone_number) {
-                    setErrorPhone2(errorData.phone_number);
-                } else {
-                    setErrorPhone2(null);
-                }
+
+                setErrorUser2(errorData.username || null);
+                setErrorPhone2(errorData.phone_number || null);
+                toast(errorData.message || "Signup failed.");
             }
-        } catch (error: any) {
+        } catch (error) {
+            console.error("Signup Error:", error);
             Cookies.remove("access");
-            setError2(error.message);
+            setError2("An unexpected error occurred during signup.");
+            toast("An unexpected error occurred during signup.");
         } finally {
             setIsLoading2(false);
         }
@@ -259,29 +252,27 @@ export function SignupFormDemo({ dict, lang }: { dict: any; lang: string }) {
             code: values.textmask,
         };
         try {
-            const response = await fetch(
+            const response = await axiosInstance.post(
                 `${process.env.NEXT_PUBLIC_API_URL}/account/verify`,
+                data,
                 {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                    body: JSON.stringify(data),
+                    headers: { "Content-Type": "application/json" },
                 },
             );
-            if (response.ok) {
+
+            if (response.status === 200) {
                 setUser(response);
-                token = await response.json();
+                const token = response.data;
                 Cookies.set("access", token);
                 openToast();
             } else {
-                const errorData = await response.json();
+                const errorData = response.data;
                 Cookies.remove("access");
                 if (errorData.username) {
                     setErrorUser2(errorData.username);
                 }
             }
-        } catch (error: any) {
+        } catch (error) {
             Cookies.remove("access");
             setError2(error.message);
         }

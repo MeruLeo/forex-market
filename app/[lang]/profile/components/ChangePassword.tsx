@@ -3,6 +3,7 @@ import { toast } from "sonner";
 import IconButton from "@mui/material/IconButton";
 import KeyIcon from "@mui/icons-material/Key";
 import Cookies from "js-cookie";
+import axiosInstance from "@/utils/axiosInstance";
 
 const ChangePasswordModal = () => {
     const [isOpen, setIsOpen] = useState(false);
@@ -23,28 +24,26 @@ const ChangePasswordModal = () => {
         }
 
         try {
-            const response = await fetch(
+            const response = await axiosInstance.post(
                 `${process.env.NEXT_PUBLIC_API_URL2}/change-password`,
                 {
-                    method: "POST",
+                    old_password: oldPassword,
+                    new_password: newPassword,
+                },
+                {
                     headers: {
                         "Content-Type": "application/json",
                     },
-                    body: JSON.stringify({
-                        old_password: oldPassword,
-                        new_password: newPassword,
-                    }),
                 },
             );
 
-            if (response.ok) {
+            if (response.status === 200) {
                 toast("Password changed successfully. You will be logged out.");
                 Cookies.remove("access"); // Logout user
                 toggleModal(); // Close modal
             } else {
-                const data = await response.json();
-                setError(data.message || "Failed to change password.");
-                toast(data.message || "Failed to change password.");
+                setError(response.data.message || "Failed to change password.");
+                toast(response.data.message || "Failed to change password.");
             }
         } catch (error) {
             toast("An error occurred while changing password.");

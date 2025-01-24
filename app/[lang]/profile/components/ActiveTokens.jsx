@@ -16,6 +16,7 @@ import { useAppContext } from "@/context";
 import BorderColorIcon from "@mui/icons-material/BorderColor";
 import TokenIcon from "@mui/icons-material/Token";
 import Cookies from "js-cookie";
+import axiosInstance from "@/utils/axiosInstance";
 
 const BootstrapDialog = styled(Dialog)(({ theme }) => ({
     "& .MuiDialogContent-root": {
@@ -46,25 +47,15 @@ export default function ActiveTokens({ dict }) {
                 token: token,
             };
             console.log("----------------------", data);
-            const response = await fetch(
+            const response = await axiosInstance.post(
                 `${process.env.NEXT_PUBLIC_API_URL2}/revoke-token`,
+                data,
                 {
-                    method: "POST",
                     headers: {
-                        "Content-Type": "application/json",
                         "X-Source": "nextjs",
                     },
-                    body: JSON.stringify(data),
                 },
             );
-
-            if (!response.ok) {
-                const res = await response.json();
-                toast(res.error);
-            } else {
-                toast("Action performed successfully");
-                await fetch_tokens();
-            }
         } catch (error) {
             console.log(error);
             toast(error.message);
@@ -78,31 +69,20 @@ export default function ActiveTokens({ dict }) {
             const data = {
                 token: token,
             };
-            const response = await fetch(
+            const response = await axiosInstance.post(
                 `${process.env.NEXT_PUBLIC_API_URL2}/get-user-tokens`,
+                data,
                 {
-                    method: "POST",
                     headers: {
-                        "Content-Type": "application/json",
                         "X-Source": "nextjs",
                     },
-                    body: JSON.stringify(data),
                 },
             );
 
             if (response.status === 200) {
-                const data = await response.json();
+                const data = response.data;
                 console.log(data);
                 setTokens(data);
-                setIsLoading(false);
-            }
-
-            if (!response.ok) {
-                try {
-                    const data = await response.json();
-                    toast(data.message);
-                } catch {}
-
                 setIsLoading(false);
             }
         } catch (error) {
@@ -121,24 +101,22 @@ export default function ActiveTokens({ dict }) {
         const data = {
             token: token,
         };
-        const response = await fetch(
-            `${process.env.NEXT_PUBLIC_API_URL}/account/verify_token`,
-            {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    Authorization: `Bearer ${token}`,
-                },
-                body: JSON.stringify(data),
-            },
-        );
-
         try {
+            const response = await axiosInstance.post(
+                `${process.env.NEXT_PUBLIC_API_URL}/account/verify_token`,
+                data,
+                {
+                    headers: {
+                        "Content-Type": "application/json",
+                        Authorization: `Bearer ${token}`,
+                    },
+                },
+            );
+
             if (response.status !== 202) {
                 toast("Invalid token, redirecting to login.");
                 Cookies.remove("access"); // Optionally clear token
                 window.location.href = "/";
-                return;
             }
         } catch (error) {
             console.error("Error verifying token:", error);

@@ -4,6 +4,7 @@ import { createContext, useContext, useState, useEffect } from "react";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import Cookies from "js-cookie";
+import axiosInstance from "@/utils/axiosInstance";
 
 const AppContext = createContext<any>(undefined);
 
@@ -42,14 +43,12 @@ export function AppWrapper({ children }: { children: React.ReactNode }) {
                     ) {
                     } else {
                         toast("Invalid token, redirecting to login.");
-                        Cookies.remove("access"); // Optionally clear token
+                        Cookies.remove("access");
                         router.push("/");
                         window.location.href = "/";
                     }
                     return;
                 }
-
-                // Optionally handle valid token response here
             } catch (error) {
                 if (
                     window.location.href.endsWith("en") ||
@@ -59,7 +58,7 @@ export function AppWrapper({ children }: { children: React.ReactNode }) {
                 } else {
                     console.error("Error verifying token:", error);
                     toast("Error verifying token, redirecting to login.");
-                    Cookies.remove("access"); // Optionally clear token
+                    Cookies.remove("access");
                     router.push("/");
                     window.location.href = "/";
                 }
@@ -87,39 +86,36 @@ export function AppWrapper({ children }: { children: React.ReactNode }) {
     }, []);
 
     const verifyToken = async (token: string) => {
-        const data = {
-            token: token,
-        };
-        return await fetch(
-            `${process.env.NEXT_PUBLIC_API_URL}/account/verify_token`,
-            {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    Authorization: `Bearer ${token}`,
-                },
-                body: JSON.stringify(data),
-            },
-        );
-    };
-    const refreshToken = async (token: string) => {
+        const data = { token: token };
         try {
-            const response = await fetch(
-                `${process.env.NEXT_PUBLIC_API_URL}/account/renew`,
+            const response = await axiosInstance.post(
+                `${process.env.NEXT_PUBLIC_API_URL}/account/verify_token`,
+                data,
                 {
-                    method: "POST",
                     headers: {
-                        "Content-Type": "application/json",
+                        Authorization: `Bearer ${token}`,
                     },
-                    body: JSON.stringify({ token: token }),
                 },
             );
-            if (response.ok) {
-                token = await response.json();
-                Cookies.set("access", token);
-            }
-            if (!response.ok) {
-                const errorData = await response.json();
+            return response;
+        } catch (error) {
+            console.error("Error verifying token:", error);
+            throw error;
+        }
+    };
+
+    const refreshToken = async (token: string) => {
+        try {
+            const response = await axiosInstance.post(
+                `${process.env.NEXT_PUBLIC_API_URL}/account/renew`,
+                { token: token },
+            );
+
+            if (response.status === 200) {
+                const newToken = response.data.token;
+                Cookies.set("access", newToken);
+            } else {
+                const errorData = response.data;
                 console.error("Error refreshing token:", errorData);
                 throw new Error(
                     `Error ${response.status}: ${errorData.message || "Unknown error"}`,
@@ -132,12 +128,10 @@ export function AppWrapper({ children }: { children: React.ReactNode }) {
                 if (newCount >= 5) {
                     Cookies.remove("access");
                     toast("Session expired, please login again");
-                    return 0; // Reset count after removing token
+                    return 0;
                 }
                 return newCount;
             });
-            // localStorage.removeItem('token');
-            // toast('session expired, login again');
         }
     };
 

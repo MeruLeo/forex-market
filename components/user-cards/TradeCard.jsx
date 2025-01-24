@@ -5,6 +5,7 @@ import EditPositionDialog from "./EditPositionDialog";
 import { toast } from "sonner";
 import { useConfirmationDialog } from "../../hooks/useCloseTradeDialog";
 import Cookies from "js-cookie";
+import axiosInstance from "@/utils/axiosInstance";
 
 // const formatDate = (dateString) => {
 //     const date = new Date(dateString);
@@ -64,18 +65,12 @@ const TradeCard = ({ trade, dict, idx }) => {
                 valume: valume,
                 ticket: ticket,
             };
-            const response = await fetch(
+            const response = await axiosInstance.post(
                 `${process.env.NEXT_PUBLIC_API_URL}/mt5/close_partial`,
-                {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                    body: JSON.stringify(data),
-                },
+                data,
             );
 
-            const res = await response.json();
+            const res = response.data;
             if (!response.ok) {
                 toast(res.error);
                 setSendingClose(false);
@@ -88,6 +83,7 @@ const TradeCard = ({ trade, dict, idx }) => {
             toast(dict.trade.errors.close_error);
         }
     };
+
     return (
         <div
             key={idx}

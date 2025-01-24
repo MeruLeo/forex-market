@@ -13,6 +13,7 @@ import { getUserFromToken } from '@/lib/jwt';
 import Link from 'next/link';
 import ReCAPTCHA from 'react-google-recaptcha';
 import Cookies from 'js-cookie';
+import axiosInstance from '@/utils/axiosInstance';
 
 const SignupDialog = ({ isOpen, onclose }: { isOpen: boolean, onclose: any }) => {
   let token = '';
@@ -90,44 +91,37 @@ const SignupDialog = ({ isOpen, onclose }: { isOpen: boolean, onclose: any }) =>
     };
 
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/user/signup`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(data),
-      });
+        const response = await axiosInstance.post("/user/signup", data);
 
-      // Check if the response is ok (status code 200-299)
-      if (response.ok) {
-        token = await response.json();
-        setErrorUser(null)
-        setErrorEmail(null)
-        setErrorp1(null)
-        setErrorp2(null)
+        const token = response.data;
+        setErrorUser(null);
+        setErrorEmail(null);
+        setErrorp1(null);
+        setErrorp2(null);
         setOpen(false);
         onclose();
-        Cookies.set('access', token)
+        Cookies.set("access", token);
         openToast();
-      } else {
-        const errorData = await response.json();
-        Cookies.remove('access');
-        if (errorData.username) {
-          setErrorUser(errorData.username)
+    } catch (error) {
+        Cookies.remove("access");
+
+        if (error.response) {
+            const errorData = error.response.data;
+            if (errorData.username) {
+                setErrorUser(errorData.username);
+            } else {
+                setErrorUser(null);
+            }
+            if (errorData.email) {
+                setErrorEmail(errorData.email);
+            } else {
+                setErrorEmail(null);
+            }
         } else {
-          setErrorUser(null)
+            toast("An error occurred");
         }
-        if (errorData.email) {
-          setErrorEmail(errorData.email)
-        } else {
-          setErrorEmail(null)
-        }
-      }
-    } catch (error: any) {
-      Cookies.remove('access');
-      setError(error.message)
     } finally {
-      setIsLoading(false)
+        setIsLoading(false);
     }
 
   };

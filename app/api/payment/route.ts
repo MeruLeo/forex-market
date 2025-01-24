@@ -1,29 +1,37 @@
-import { NextResponse } from 'next/server';
-
+import axiosInstance from "@/utils/axiosInstance";
+import { NextResponse } from "next/server";
 export async function POST(req: Request) {
-    const url = 'https://bitpay.ir/payment-test/gateway-send';
+    const url = "https://bitpay.ir/payment-test/gateway-send";
     try {
-        const formData = await req.formData(); // Parse the incoming FormData request body
+        const formData = new FormData(await req.formData());
 
-        const response = await fetch(url, {
-            method: 'POST',
-            body: formData, // Forward the FormData to the external API
+        const response = await axiosInstance.post(url, formData, {
+            headers: { "Content-Type": "multipart/form-data" },
         });
-        
-        if (response.ok) {
-            const data = await response.json();
+
+        if (response.status === 200) {
+            const data = response.data;
 
             if (data.data === -1) {
-                return NextResponse.json({ error: 'Invalid API provided' }, { status: 400 });
+                return NextResponse.json(
+                    { error: "Invalid API provided" },
+                    { status: 400 },
+                );
             }
 
             return NextResponse.json(data, { status: response.status });
         } else {
-            const errorData = await response.json();
-            return NextResponse.json({ error: errorData.message }, { status: response.status });
+            const errorData = response.data;
+            return NextResponse.json(
+                { error: errorData.message },
+                { status: response.status },
+            );
         }
     } catch (error) {
-        console.error('Error:', error);
-        return NextResponse.json({ error: 'Failed to process payment' }, { status: 500 });
+        console.error("Error:", error);
+        return NextResponse.json(
+            { error: "Failed to process payment" },
+            { status: 500 },
+        );
     }
 }

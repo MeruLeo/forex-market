@@ -78,23 +78,17 @@ const ClientHistory = ({ dict }: { dict: any }) => {
     useEffect(() => {
         const get_trades = async () => {
             try {
-                const response = await fetch(
+                const response = await axiosInstance.post(
                     `${process.env.NEXT_PUBLIC_API_URL}/mt5/user_trades`,
-                    {
-                        method: "POST",
-                        headers: {
-                            "Content-Type": "application/json",
-                        },
-                        body: JSON.stringify({ token: Cookies.get("access") }),
-                    },
+                    { token: Cookies.get("access") },
+                    { headers: { "Content-Type": "application/json" } },
                 );
 
-                const res = await response.json();
-                if (!response.ok) {
-                    toast(res.error);
+                if (response.status !== 200) {
+                    toast(response.data.error);
                     return;
                 }
-                setTrades(res);
+                setTrades(response.data);
             } catch (error) {
                 toast(dict.history.errors.trade_error);
             }
@@ -102,23 +96,17 @@ const ClientHistory = ({ dict }: { dict: any }) => {
 
         const get_deals = async () => {
             try {
-                const response = await fetch(
+                const response = await axiosInstance.post(
                     `${process.env.NEXT_PUBLIC_API_URL}/mt5/user_deals`,
-                    {
-                        method: "POST",
-                        headers: {
-                            "Content-Type": "application/json",
-                        },
-                        body: JSON.stringify({ token: Cookies.get("access") }),
-                    },
+                    { token: Cookies.get("access") },
+                    { headers: { "Content-Type": "application/json" } },
                 );
 
-                const res = await response.json();
-                if (!response.ok) {
-                    toast(res.error);
+                if (response.status !== 200) {
+                    toast(response.data.error);
                     return;
                 }
-                setDeals(res);
+                setDeals(response.data);
             } catch (error) {
                 toast(dict.history.errors.deal_error);
             }
@@ -126,23 +114,17 @@ const ClientHistory = ({ dict }: { dict: any }) => {
 
         const get_orders = async () => {
             try {
-                const response = await fetch(
+                const response = await axiosInstance.post(
                     `${process.env.NEXT_PUBLIC_API_URL}/mt5/user_orders`,
-                    {
-                        method: "POST",
-                        headers: {
-                            "Content-Type": "application/json",
-                        },
-                        body: JSON.stringify({ token: Cookies.get("access") }),
-                    },
+                    { token: Cookies.get("access") },
+                    { headers: { "Content-Type": "application/json" } },
                 );
 
-                const res = await response.json();
-                if (!response.ok) {
-                    toast(res.error);
+                if (response.status !== 200) {
+                    toast(response.data.error);
                     return;
                 }
-                setOrders(res);
+                setOrders(response.data);
             } catch (error) {
                 toast(dict.history.errors.order_error);
             }
@@ -150,27 +132,22 @@ const ClientHistory = ({ dict }: { dict: any }) => {
 
         const get_transactions = async () => {
             try {
-                const response = await fetch(
+                const response = await axiosInstance.post(
                     `${process.env.NEXT_PUBLIC_API_URL}/zarinpal/transactions`,
-                    {
-                        method: "POST",
-                        headers: {
-                            "Content-Type": "application/json",
-                        },
-                        body: JSON.stringify({ token: Cookies.get("access") }),
-                    },
+                    { token: Cookies.get("access") },
+                    { headers: { "Content-Type": "application/json" } },
                 );
 
-                const res = await response.json();
-                if (!response.ok) {
-                    toast(res.error);
+                if (response.status !== 200) {
+                    toast(response.data.error);
                     return;
                 }
-                setTransactions(res);
+                setTransactions(response.data);
             } catch (error) {
                 toast(dict.history.errors.order_error);
             }
         };
+
         const token = Cookies.get("access");
         if (!token) {
             toast("No token found, redirecting to login.");
@@ -438,6 +415,7 @@ const HistoryTable = ({ items, headers, dict, isOrder }: ItemInt) => {
 import { FaFolderOpen } from "react-icons/fa6";
 import { DatePickerWithRange } from "../ui/DateRange";
 import { toast } from "sonner";
+import axiosInstance from "@/utils/axiosInstance";
 
 const Empty = ({ dict }: { dict: any }) => {
     return (

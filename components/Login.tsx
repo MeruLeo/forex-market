@@ -7,10 +7,12 @@ import {
     DialogTitle,
 } from "@/components/shadcn/dialog";
 import { cn } from "@/lib/utils";
-import { getUserFromToken } from "@/lib/jwt";
 import { toast } from "sonner";
 import ReCAPTCHA from "react-google-recaptcha";
 import Cookies from "js-cookie";
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch, RootState } from "@/redux/store";
+import { loginUser, resetState } from "@/redux/slices/loginSlice";
 
 const LoginDialog = ({
     isOpen,
@@ -19,26 +21,24 @@ const LoginDialog = ({
     isOpen: boolean;
     onclose: any;
 }) => {
-    let token = "";
+    const dispatch = useDispatch<AppDispatch>();
+    const { error, success, loading } = useSelector(
+        (state: RootState) => state.login,
+    );
+
     const [isCaptchaVerified, setIsCaptchaVerified] = useState(false);
 
-    const [isLoading, setIsLoading] = useState<boolean>(false);
-    const [error, setError] = useState<string | null>(null);
-    const [open, setOpen] = useState(false);
-
     const handleClose = () => {
-        setOpen(false);
         onclose();
+        dispatch(resetState());
     };
 
     const openToast = () => {
-        const user = getUserFromToken();
         toast("Welcome Back");
     };
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        setIsLoading(true);
 
         const username = (
             document.getElementById("username") as HTMLInputElement
@@ -47,98 +47,42 @@ const LoginDialog = ({
             document.getElementById("password") as HTMLInputElement
         ).value;
 
-        const data = {
-            username: username,
-            password: password,
-        };
-
-        try {
-            const response = await fetch(
-                `${process.env.NEXT_PUBLIC_API_URL}/user/login`,
-                {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                    body: JSON.stringify(data),
-                },
-            );
-
-            // Check if the response is ok (status code 200-299)
-            if (response.ok) {
-                token = await response.json();
-                Cookies.set("access", token);
-                setError(null);
-                setOpen(false);
-                onclose();
-                openToast();
-            } else {
-                const errorData = await response.json();
-
-                if (errorData.error) {
-                    setError("something went wrong please try again later");
-                } else {
-                    setError(null);
-                }
-                Cookies.remove("access");
-            }
-        } catch (error: any) {
-            Cookies.remove("access");
-            setError(error);
-        } finally {
-            setIsLoading(false);
-        }
+        dispatch(loginUser({ username, password }));
     };
 
     const handleCaptchaChange = (value: any) => {
-        if (value) {
-            setIsCaptchaVerified(true);
-        }
+        setIsCaptchaVerified(!!value);
     };
 
     useEffect(() => {
-        if (isOpen) {
-            // Additional logic when dialog opens, if needed
+        if (success) {
+            // Cookies.set("access"); // Set actual token if needed
+            openToast();
+            onclose();
         }
-        const clearErrorsTimeout = setTimeout(() => {
-            setError(null);
-        }, 5000);
-
-        return () => clearTimeout(clearErrorsTimeout);
-    }, [isOpen, error]);
+        if (error) {
+            toast.error(error);
+        }
+    }, [success, error, onclose]);
 
     return (
         <div>
             <Dialog open={isOpen} onOpenChange={handleClose}>
                 <DialogContent className=" overflow-hidden w-[90vw] -translate-x-10  sm:max-w-96 px-0 border-0 opacity-100">
-                    <div className="absolute h-full w-[400px] -translate-x-2 -inset-2 filter blur-md">
-                        <svg
-                            viewBox="0 0 202 151"
-                            className=" h-[460px] fill-neutral-300 dark:fill-neutral-900 -z-10"
-                            xmlns="http://www.w3.org/2000/svg"
-                        >
-                            <path d="M38.4065 37.709C35.414 20.01 26.9352 5.58863 1 1V197H201C200.834 184.764 184.042 163.569 162.097 160.291C140.152 157.013 123.693 137.348 120.701 117.682C117.708 98.0167 103.743 83.8763 81.2993 79.6622C61.5496 75.954 42.2857 60.6522 38.4065 37.709Z" />{" "}
-                        </svg>
-                    </div>
-
                     <DialogHeader className="text-left px-6 sm:px-12 z-10">
                         <DialogTitle className="heading text-2xl font-semibold">
                             Log in
                         </DialogTitle>
-                        <p className="">welcome back !</p>
+                        <p className="">Welcome back!</p>
                     </DialogHeader>
 
                     <div className="flex flex-col justify-center items-center gap-1 w-full h-full">
                         <form
-                            action="/user/login"
-                            method="post"
                             className="my-8 w-full px-6 sm:px-12 pt-2"
                             onSubmit={handleSubmit}
                         >
                             {error && (
-                                <div
-                                    className={`text-red-500 text-sm z-10 h-5 text-left pb-1 animate-fadeOut`}
-                                >
+                                <div className="text-red-500 text-sm z-10 h-5 text-left pb-1 animate-fadeOut">
                                     {error}
                                 </div>
                             )}
@@ -147,7 +91,7 @@ const LoginDialog = ({
                                     htmlFor="username"
                                     className="text-sm text-black dark:text-white font-semibold z-10"
                                 >
-                                    username / Email
+                                    Username / Email
                                 </label>
                                 <CustomInput id="username" type="text" />
                             </LabelInputContainer>
@@ -178,9 +122,9 @@ const LoginDialog = ({
                               font-medium shadow-[0px_1px_0px_0px_#ffffff40_inset,0px_-1px_0px_0px_#ffffff40_inset] 
                               dark:shadow-[0px_1px_0px_0px_var(--zinc-800)_inset,0px_-1px_0px_0px_var(--zinc-800)_inset]"
                                 type="submit"
-                                disabled={isLoading || !isCaptchaVerified}
+                                disabled={loading || !isCaptchaVerified}
                             >
-                                {isLoading ? "Loading..." : "Log in  →"}
+                                {loading ? "Loading..." : "Log in →"}
                             </button>
                         </form>
                     </div>

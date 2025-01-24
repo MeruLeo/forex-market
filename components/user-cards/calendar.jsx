@@ -19,6 +19,7 @@ import persian_fa from "react-date-object/locales/persian_fa"
 import gregorian_en from "react-date-object/locales/gregorian_en"
 import TimePicker from "react-multi-date-picker/plugins/time_picker";
 import Cookies from 'js-cookie';
+import axiosInstance from '@/utils/axiosInstance';
 
 
 const BootstrapDialog = styled(Dialog)(({ theme }) => ({
@@ -65,25 +66,22 @@ export default function Calendar({ dict, onUpdateDates }) {
     const SetDateTime = async (target) => {
         try {
             const data = {
-                token: Cookies.get('access'),
+                token: Cookies.get("access"),
             };
-            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/mt5/${target}`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(data),
-            });
-
-            const res = await response.json();
+            const response = await axiosInstance.post(
+                `${process.env.NEXT_PUBLIC_API_URL}/mt5/${target}`,
+                data,
+                { headers: { "Content-Type": "application/json" } },
+            );
 
             if (response.status === 200) {
-                toast(res.message);
+                toast(response.data.message);
                 setOpen(false);
                 return;
             }
-            if (!response.ok) {
-                toast(res.error);
+
+            if (response.status !== 200) {
+                toast(response.data.error);
                 return;
             }
         } catch (error) {
