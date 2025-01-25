@@ -7,6 +7,7 @@ const axiosInstance = axios.create({
         "Content-Type": "application/json",
         "X-Source": "nextjs",
     },
+    withCredentials: true,
 });
 
 axiosInstance.interceptors.request.use((config) => {
