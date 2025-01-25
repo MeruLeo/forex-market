@@ -86,16 +86,9 @@ export function AppWrapper({ children }: { children: React.ReactNode }) {
     }, []);
 
     const verifyToken = async (token: string) => {
-        const data = { token: token };
         try {
             const response = await axiosInstance.post(
                 `${process.env.NEXT_PUBLIC_API_URL}/account/verify_token`,
-                data,
-                {
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                    },
-                },
             );
             return response;
         } catch (error) {
@@ -108,7 +101,6 @@ export function AppWrapper({ children }: { children: React.ReactNode }) {
         try {
             const response = await axiosInstance.post(
                 `${process.env.NEXT_PUBLIC_API_URL}/account/renew`,
-                { token: token },
             );
 
             if (response.status === 200) {

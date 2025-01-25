@@ -7,8 +7,11 @@ import ReCAPTCHA from "react-google-recaptcha";
 import { useDispatch, useSelector } from "react-redux";
 import { loginUser, resetState } from "../../redux/slices/loginSlice";
 import { AppDispatch, RootState } from "../../redux/store";
+import { useRouter } from "next/navigation";
 
 export function LoginFormDemo({ dict }: { dict: any }) {
+    const router = useRouter();
+
     const dispatch = useDispatch<AppDispatch>();
     const { loading, error, success } = useSelector(
         (state: RootState) => state.login,
@@ -28,10 +31,10 @@ export function LoginFormDemo({ dict }: { dict: any }) {
 
     const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        if (!isCaptchaVerified) {
-            alert(dict.login.errors.captcha);
-            return;
-        }
+        // if (!isCaptchaVerified) {
+        //     alert(dict.login.errors.captcha);
+        //     return;
+        // }
 
         const phone_number = (
             document.getElementById("phone") as HTMLInputElement
@@ -40,7 +43,14 @@ export function LoginFormDemo({ dict }: { dict: any }) {
             document.getElementById("password") as HTMLInputElement
         ).value;
 
-        dispatch(loginUser({ username: phone_number, password }));
+        try {
+            dispatch(loginUser({ username: phone_number, password }));
+            if (success) {
+                router.push(`/${dict.lang}/user`);
+            }
+        } catch (err) {
+            console.error(err);
+        }
     };
 
     return (
@@ -86,7 +96,7 @@ export function LoginFormDemo({ dict }: { dict: any }) {
                 <button
                     className="bg-gradient-to-br relative group/btn from-black to-neutral-600 block w-full text-white rounded-md h-10 font-medium shadow"
                     type="submit"
-                    disabled={loading || !isCaptchaVerified}
+                    // disabled={loading || !isCaptchaVerified}
                 >
                     {loading
                         ? `${dict.signup.loading}...`

@@ -167,7 +167,6 @@ const ClientTrade = ({ dict, trades, stat, pending, symbols }) => {
 
         setIsLoading(true);
         const data = {
-            token: token,
             symbol: symbolToTrade,
             type: type,
             price: marketPrice ? 0 : price,

@@ -41,10 +41,9 @@ export default function ActiveTokens({ dict }) {
     };
     const handleActionClick = async (id) => {
         try {
-            const token = Cookies.get("access");
+            // const token = Cookies.get("access");
             const data = {
                 monitor: id,
-                token: token,
             };
             console.log("----------------------", data);
             const response = await axiosInstance.post(
@@ -66,12 +65,8 @@ export default function ActiveTokens({ dict }) {
         setIsLoading(true);
         await verifyToken(token);
         try {
-            const data = {
-                token: token,
-            };
             const response = await axiosInstance.post(
                 `${process.env.NEXT_PUBLIC_API_URL2}/get-user-tokens`,
-                data,
                 {
                     headers: {
                         "X-Source": "nextjs",
@@ -98,19 +93,9 @@ export default function ActiveTokens({ dict }) {
             window.location.href = "/";
             return;
         }
-        const data = {
-            token: token,
-        };
         try {
             const response = await axiosInstance.post(
                 `${process.env.NEXT_PUBLIC_API_URL}/account/verify_token`,
-                data,
-                {
-                    headers: {
-                        "Content-Type": "application/json",
-                        Authorization: `Bearer ${token}`,
-                    },
-                },
             );
 
             if (response.status !== 202) {

@@ -19,10 +19,7 @@ export const verifyToken = createAsyncThunk(
     async (_, thunkAPI) => {
         try {
             const token = Cookies.get("access");
-            const response = await axiosInstance.post(
-                "/api/token/verify",
-                token,
-            );
+            const response = await axiosInstance.post("/token/verify", token);
             return response.data;
         } catch (error: any) {
             return thunkAPI.rejectWithValue(

@@ -53,11 +53,9 @@ const Wallet = ({ dict }) => {
             return;
         }
         setIs_loading(true);
-        const token = Cookies.get("access");
 
         try {
             const response = await axiosInstance.post("/take-from-wallet", {
-                token: token,
                 amount: amount,
             });
 
@@ -86,11 +84,8 @@ const Wallet = ({ dict }) => {
         }
         setIs_loading(true);
 
-        const token = Cookies.get("access");
-
         try {
             const response = await axiosInstance.post("/add-to-wallet", {
-                token: token,
                 amount: amount,
             });
 
@@ -119,11 +114,8 @@ const Wallet = ({ dict }) => {
 
     const getWallet = async () => {
         setIs_loading(true);
-        const token = Cookies.get("access");
         try {
-            const response = await axiosInstance.post("/user-wallet", {
-                token: token,
-            });
+            const response = await axiosInstance.post("/user-wallet", {});
 
             const data = response.data;
             setWalletAmount(data.amount.toFixed(2));

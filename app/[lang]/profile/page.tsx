@@ -62,17 +62,8 @@ export default function ProfilePage({
             router.push("/");
             return;
         }
-        const data = {
-            token: token,
-        };
         const response = await axiosInstance.post(
             `${process.env.NEXT_PUBLIC_API_URL}/account/verify_token`,
-            data,
-            {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
-            },
         );
 
         try {

@@ -9,7 +9,7 @@ export const refreshToken = createAsyncThunk(
             const refreshToken = Cookies.get("refresh");
             if (!refreshToken) throw new Error("No refresh token found");
 
-            const response = await axiosInstance.post("/api/token/refresh", {
+            const response = await axiosInstance.post("/token/refresh", {
                 refresh: refreshToken,
             });
 
@@ -31,7 +31,6 @@ export const refreshToken = createAsyncThunk(
     },
 );
 
-// تعریف Slice
 const refreshTokenSlice = createSlice({
     name: "auth",
     initialState: {

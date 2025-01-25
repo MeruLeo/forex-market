@@ -56,13 +56,11 @@ const Wallet = ({ dict }) => {
       return;
     }
     setIs_loading(true)
-    const token = Cookies.get("access")
 
     try {
         const response = await axiosInstance.post(
             `${process.env.NEXT_PUBLIC_API_URL2}/take-from-wallet`,
             {
-                token: token,
                 amount: amount,
             },
             {
@@ -140,13 +138,9 @@ const Wallet = ({ dict }) => {
 
   const getWallet = async () => {
     setIs_loading(true)
-    const token = Cookies.get("access")
     try {
         const response = await axiosInstance.post(
             `${process.env.NEXT_PUBLIC_API_URL2}/user-wallet`,
-            {
-                token: token,
-            },
             {
                 headers: {
                     "Content-Type": "application/json",
