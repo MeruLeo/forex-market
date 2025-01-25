@@ -9,7 +9,7 @@ import { loginUser, resetState } from "../../redux/slices/loginSlice";
 import { AppDispatch, RootState } from "../../redux/store";
 import { useRouter } from "next/navigation";
 
-export function LoginFormDemo({ dict }: { dict: any }) {
+export function LoginFormDemo({ dict, lang }: { dict: any; lang: string }) {
     const router = useRouter();
 
     const dispatch = useDispatch<AppDispatch>();
@@ -26,8 +26,9 @@ export function LoginFormDemo({ dict }: { dict: any }) {
         if (success) {
             alert(dict.login_success);
             dispatch(resetState());
+            router.push(`${lang}/user`);
         }
-    }, [success, dispatch, dict]);
+    }, [success, dispatch, dict, router]);
 
     const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
@@ -45,9 +46,6 @@ export function LoginFormDemo({ dict }: { dict: any }) {
 
         try {
             dispatch(loginUser({ username: phone_number, password }));
-            if (success) {
-                router.push(`/${dict.lang}/user`);
-            }
         } catch (err) {
             console.error(err);
         }
@@ -59,7 +57,10 @@ export function LoginFormDemo({ dict }: { dict: any }) {
                 {dict.login.title}
             </h2>
 
-            <form className="mt-8 mb-2" onSubmit={handleSubmit}>
+            <form
+                className="mt-8 mb-2 flex flex-col justify-center items-center"
+                onSubmit={handleSubmit}
+            >
                 <LabelInputContainer className="mb-4">
                     <Label htmlFor="phone">{dict.signup.phone}</Label>
                     <Input
@@ -88,13 +89,13 @@ export function LoginFormDemo({ dict }: { dict: any }) {
                 </div>
 
                 {error && (
-                    <div className="text-red-500 text-sm z-10 h-5 text-right pb-1">
+                    <div className="bg-red-500 my-4 text-center text-white w-fit p-4 rounded-full text-sm z-10 h-5 flex justify-center items-center">
                         {error}
                     </div>
                 )}
 
                 <button
-                    className="bg-gradient-to-br relative group/btn from-black to-neutral-600 block w-full text-white rounded-md h-10 font-medium shadow"
+                    className="bg-gradient-to-br rounded-full relative group/btn bg-primary transition-all duration-200 hover:scale-95 block w-full text-white h-10 font-medium shadow"
                     type="submit"
                     // disabled={loading || !isCaptchaVerified}
                 >

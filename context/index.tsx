@@ -31,38 +31,38 @@ export function AppWrapper({ children }: { children: React.ReactNode }) {
                 return;
             }
 
-            try {
-                const response = await verifyToken(token);
+            // try {
+            //     // const response = await verifyToken(token);
 
-                // If response status is not 202, redirect to home
-                if (response.status !== 202) {
-                    if (
-                        window.location.href.endsWith("en") ||
-                        window.location.href.endsWith("fa") ||
-                        window.location.href.endsWith("kur")
-                    ) {
-                    } else {
-                        toast("Invalid token, redirecting to login.");
-                        Cookies.remove("access");
-                        router.push("/");
-                        window.location.href = "/";
-                    }
-                    return;
-                }
-            } catch (error) {
-                if (
-                    window.location.href.endsWith("en") ||
-                    window.location.href.endsWith("fa") ||
-                    window.location.href.endsWith("kur")
-                ) {
-                } else {
-                    console.error("Error verifying token:", error);
-                    toast("Error verifying token, redirecting to login.");
-                    Cookies.remove("access");
-                    router.push("/");
-                    window.location.href = "/";
-                }
-            }
+            //     // If response status is not 202, redirect to home
+            //     if (response.status !== 202) {
+            //         if (
+            //             window.location.href.endsWith("en") ||
+            //             window.location.href.endsWith("fa") ||
+            //             window.location.href.endsWith("kur")
+            //         ) {
+            //         } else {
+            //             toast("Invalid token, redirecting to login.");
+            //             Cookies.remove("access");
+            //             router.push("/");
+            //             window.location.href = "/";
+            //         }
+            //         return;
+            //     }
+            // } catch (error) {
+            //     if (
+            //         window.location.href.endsWith("en") ||
+            //         window.location.href.endsWith("fa") ||
+            //         window.location.href.endsWith("kur")
+            //     ) {
+            //     } else {
+            //         console.error("Error verifying token:", error);
+            //         toast("Error verifying token, redirecting to login.");
+            //         Cookies.remove("access");
+            //         router.push("/");
+            //         window.location.href = "/";
+            //     }
+            // }
         };
 
         checkToken();
@@ -85,17 +85,17 @@ export function AppWrapper({ children }: { children: React.ReactNode }) {
         return () => clearInterval(interval);
     }, []);
 
-    const verifyToken = async (token: string) => {
-        try {
-            const response = await axiosInstance.post(
-                `${process.env.NEXT_PUBLIC_API_URL}/account/verify_token`,
-            );
-            return response;
-        } catch (error) {
-            console.error("Error verifying token:", error);
-            throw error;
-        }
-    };
+    // const verifyToken = async (token: string) => {
+    //     try {
+    //         const response = await axiosInstance.post(
+    //             `${process.env.NEXT_PUBLIC_API_URL}/verify`,
+    //         );
+    //         return response;
+    //     } catch (error) {
+    //         console.error("Error verifying token:", error);
+    //         throw error;
+    //     }
+    // };
 
     const refreshToken = async (token: string) => {
         try {

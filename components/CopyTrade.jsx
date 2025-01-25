@@ -140,48 +140,35 @@ const CopyTrade = ({ dict, symbols }) => {
         setIs_loading(true);
         const token = Cookies.get("access");
         try {
-    const response = await axiosInstance.post("/get-copy-from");
+            const response = await axiosInstance.post("/get-copy-from");
 
-    const data = response.data;
-    setCurrentCopyFrom(data.copy_from || "-");
-    setCurrentCopyUnits(data.max_unit || 1);
-    setCurrentCopyReverse(data.reverse || false);
-    setCurrentCopySymbol(data.symbol ? data.symbol.name : "-");
-    setNewCopyFrom("-");
-    setNewCopyUnit(1);
-    setNewCopySymbol("-");
-    setNewCopyReverse(false);
-    setIs_loading(false);
-} catch (error) {
-    setIs_loading(false);
-    setCurrentCopyFrom("-");
-    setCurrentCopyUnits(1);
-    setCurrentCopyReverse(false);
-    setCurrentCopySymbol(symbol.name || "-");
-    setNewCopyFrom("-");
-    setNewCopyUnit(1);
-    setNewCopySymbol("-");
-    setNewCopyReverse(false);
-
-    if (error.response) {
-        const data = error.response.data;
-        toast(data.message || "Failed.");
-    } else {
-        toast("An error occurred");
-    }
-}
- catch (error) {
-            console.log(error);
-            setIs_loading(false);
-            setCurrentCopyFrom("-");
-            setCurrentCopyUnits(1);
-            setCurrentCopyReverse(false);
-            setCurrentCopySymbol("-");
+            const data = response.data;
+            setCurrentCopyFrom(data.copy_from || "-");
+            setCurrentCopyUnits(data.max_unit || 1);
+            setCurrentCopyReverse(data.reverse || false);
+            setCurrentCopySymbol(data.symbol ? data.symbol.name : "-");
             setNewCopyFrom("-");
             setNewCopyUnit(1);
             setNewCopySymbol("-");
             setNewCopyReverse(false);
-            toast("An error occurred");
+            setIs_loading(false);
+        } catch (error) {
+            setIs_loading(false);
+            setCurrentCopyFrom("-");
+            setCurrentCopyUnits(1);
+            setCurrentCopyReverse(false);
+            setCurrentCopySymbol(symbol.name || "-");
+            setNewCopyFrom("-");
+            setNewCopyUnit(1);
+            setNewCopySymbol("-");
+            setNewCopyReverse(false);
+
+            if (error.response) {
+                const data = error.response.data;
+                toast(data.message || "Failed.");
+            } else {
+                toast("An error occurred");
+            }
         }
     };
 

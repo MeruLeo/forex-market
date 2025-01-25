@@ -23,7 +23,7 @@ const ClientSideSignup = ({ dict, lang }: { dict: any; lang: string }) => {
                 cache: "no-cache",
             });
             const res = response.data;
-            if (!response.ok) {
+            if (!res.ok) {
                 return;
             }
             setregistartion(res.registration);

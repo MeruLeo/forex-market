@@ -13,6 +13,7 @@ import Cookies from "js-cookie";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/redux/store";
 import { loginUser, resetState } from "@/redux/slices/loginSlice";
+import { useRouter } from "next/navigation";
 
 const LoginDialog = ({
     isOpen,
@@ -21,6 +22,8 @@ const LoginDialog = ({
     isOpen: boolean;
     onclose: any;
 }) => {
+    const router = useRouter();
+
     const dispatch = useDispatch<AppDispatch>();
     const { error, success, loading } = useSelector(
         (state: RootState) => state.login,
@@ -47,7 +50,12 @@ const LoginDialog = ({
             document.getElementById("password") as HTMLInputElement
         ).value;
 
-        dispatch(loginUser({ username, password }));
+        try {
+            dispatch(loginUser({ username, password }));
+            router.push("/user");
+        } catch (err) {
+            console.error(err);
+        }
     };
 
     const handleCaptchaChange = (value: any) => {

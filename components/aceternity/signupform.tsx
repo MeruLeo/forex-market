@@ -19,7 +19,6 @@ import axiosInstance from "@/utils/axiosInstance";
 import axios from "axios";
 
 export function SignupFormDemo({ dict, lang }: { dict: any; lang: string }) {
-    let token = "";
     const { user, setUser } = useAppContext();
     const [isLoading2, setIsLoading2] = useState<boolean>(false);
     const [captcha, setCaptcha] = useState(true);

@@ -60,28 +60,24 @@ const SetLeverage = ({ dict, symbols }) => {
     const get_pair_leverage = async (pair) => {
         setIsLoading(true);
         try {
-    const response = await axiosInstance.post("/get-user-leverage", {
-        token: Cookies.get("access"),
-        pair: pair,
-    });
+            const response = await axiosInstance.post("/get-user-leverage", {
+                token: Cookies.get("access"),
+                pair: pair,
+            });
 
-    const data = response.data;
-    setLeverage(data.leverage);
-    setIsLoading(false);
-} catch (error) {
-    setIsLoading(false);
-
-    if (error.response) {
-        const data = error.response.data;
-        setError(data.message || "Failed to get Leverage.");
-        toast(data.message || "Failed to get Leverage.");
-    } else {
-        toast("An error occurred");
-    }
-}
- catch (error) {
-            toast("An error occurred while getting Leverage.");
+            const data = response.data;
+            setLeverage(data.leverage);
             setIsLoading(false);
+        } catch (error) {
+            setIsLoading(false);
+
+            if (error.response) {
+                const data = error.response.data;
+                setError(data.message || "Failed to get Leverage.");
+                toast(data.message || "Failed to get Leverage.");
+            } else {
+                toast("An error occurred");
+            }
         }
     };
 
@@ -101,25 +97,22 @@ const SetLeverage = ({ dict, symbols }) => {
         }
 
         try {
-    const response = await axiosInstance.post("/set-user-leverage", {
-        token: Cookies.get("access"),
-        leverage: leverage,
-        pair: pair,
-    });
+            const response = await axiosInstance.post("/set-user-leverage", {
+                token: Cookies.get("access"),
+                leverage: leverage,
+                pair: pair,
+            });
 
-    toast(dict.leverage.success);
-    toggleModal();
-} catch (error) {
-    if (error.response) {
-        const data = error.response.data;
-        setError(data || dict.leverage.failed);
-        toast(data || dict.leverage.failed);
-    } else {
-        toast("An error occurred");
-    }
-}
- catch (error) {
-            toast(dict.leverage._500);
+            toast(dict.leverage.success);
+            toggleModal();
+        } catch (error) {
+            if (error.response) {
+                const data = error.response.data;
+                setError(data || dict.leverage.failed);
+                toast(data || dict.leverage.failed);
+            } else {
+                toast("An error occurred");
+            }
         }
     };
 
