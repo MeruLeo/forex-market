@@ -6,6 +6,7 @@ import {
     getDictionary_message,
 } from "@/lib/dictionary";
 import ClientPage from "./ClientPage";
+import axiosInstance from "@/utils/axiosInstance";
 
 export default async function Home({
     params: { lang },

@@ -9,7 +9,7 @@ import { loginUser, resetState } from "../../redux/slices/loginSlice";
 import { AppDispatch, RootState } from "../../redux/store";
 import { useRouter } from "next/navigation";
 
-export function LoginFormDemo({ dict, lang }: { dict: any; lang: string }) {
+export function LoginFormDemo({ dict, lang }: { dict: any; lang: any }) {
     const router = useRouter();
 
     const dispatch = useDispatch<AppDispatch>();
@@ -24,11 +24,11 @@ export function LoginFormDemo({ dict, lang }: { dict: any; lang: string }) {
 
     useEffect(() => {
         if (success) {
-            alert(dict.login_success);
-            dispatch(resetState());
-            router.push(`${lang}/user`);
+            router.push(`/${lang}/profile`);
+            // console.log(`/${lang}/user`);
+            // dispatch(resetState());
         }
-    }, [success, dispatch, dict, router]);
+    }, [success, lang, router, dispatch]);
 
     const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();

@@ -94,16 +94,9 @@ export default function ProfilePage({
         }
 
         const fetchProfile = async () => {
-            const token = Cookies.get("access");
-            await verifyToken(token);
             try {
                 const response = await axiosInstance.post(
                     `${process.env.NEXT_PUBLIC_API_URL2}/profile`,
-                    {
-                        token: Cookies.get("access"),
-                        date1: startTime,
-                        date2: endTime,
-                    },
                 );
 
                 const res = response.data;
@@ -125,13 +118,8 @@ export default function ProfilePage({
     useEffect(() => {
         const fetchProfile = async () => {
             try {
-                const token = Cookies.get("access");
-                await verifyToken(token);
                 const response = await axiosInstance.post(
                     `${process.env.NEXT_PUBLIC_API_URL2}/profile`,
-                    {
-                        token: Cookies.get("access"),
-                    },
                 );
 
                 const res = response.data;

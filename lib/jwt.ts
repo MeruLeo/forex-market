@@ -36,7 +36,7 @@ export function getUserFromToken(): DecodedToken | null {
     if (typeof window === "undefined") return null; // Ensure this runs in a browser
 
     try {
-        const token = Cookies.get("token"); // Retrieve the token
+        const token = Cookies.get("access"); // Retrieve the token
         if (token) {
             try {
                 const decodedToken = jwtDecode<DecodedToken>(token); // Decode the token

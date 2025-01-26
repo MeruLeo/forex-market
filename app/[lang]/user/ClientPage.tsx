@@ -6,7 +6,7 @@ import {
     TabsList,
     TabsTrigger,
 } from "@/components/shadcn/tabs";
-import { LuHistory, LuMessageSquare, LuFileBarChart2 } from "react-icons/lu";
+import { LuHistory, LuMessageSquare } from "react-icons/lu";
 import { CgArrowsExchangeAltV } from "react-icons/cg";
 import Prices from "@/components/user-cards/Prices";
 import Trade from "@/components/user-cards/Trade";
@@ -42,25 +42,18 @@ const ClientPage = ({
     const [pending, setPending] = useState<Array<any>>([]);
     const [stat, setStat] = useState<StatType>({ balance: 0 });
     const [is_verified, setVerified] = useState<boolean>(false);
+    const [isAuthenticated, setIsAuthenticated] = useState(false);
     const router = useRouter();
 
     useEffect(() => {
-        if (!isLoading && !user) {
+        const token = Cookies.get("access");
+        if (!token) {
             router.push(`/${lang}`);
-        }
-    }, [isLoading, user, router]);
-    useEffect(() => {
-        if (!user) {
-            router.push(`/${lang}`);
-        }
-    }, [isLoading, user, router]);
-
-    useEffect(() => {
-        if (user) {
-            router.push(`/${lang}/user`);
+        } else {
+            setIsAuthenticated(true);
             setIsLoading(false);
         }
-    }, [user]);
+    }, [lang, router]);
 
     const socketRef = useRef<WebSocket | null>(null);
     const reconnectAttempts = useRef(0);
@@ -222,7 +215,7 @@ const ClientPage = ({
                             className="flex flex-col md:flex-row"
                             value="trade"
                         >
-                            <LuFileBarChart2 className="md:mx-1" />
+                            {/* <LuFileBarChart2 className="md:mx-1" /> */}
                             <span>{dict2.nav.trade}</span>
                         </TabsTrigger>
 

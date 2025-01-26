@@ -23,6 +23,7 @@ const LoginDialog = ({
     onclose: any;
 }) => {
     const router = useRouter();
+    const { locale } = router;
 
     const dispatch = useDispatch<AppDispatch>();
     const { error, success, loading } = useSelector(
@@ -52,7 +53,6 @@ const LoginDialog = ({
 
         try {
             dispatch(loginUser({ username, password }));
-            router.push(`/user`);
         } catch (err) {
             console.error(err);
         }
@@ -67,6 +67,7 @@ const LoginDialog = ({
             // Cookies.set("access"); // Set actual token if needed
             openToast();
             onclose();
+            router.push(`/user`);
         }
         if (error) {
             toast.error(error);
