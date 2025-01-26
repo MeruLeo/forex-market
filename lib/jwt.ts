@@ -15,20 +15,9 @@ function isTokenExpired(exp: number): boolean {
 }
 
 export async function verify_token() {
-    const token = Cookies.get("token");
-    const data = {
-        token,
-    };
     try {
         const response = await axiosInstance.post(
             `${process.env.NEXT_PUBLIC_API_URL}/account/verify_token`,
-            data,
-            {
-                headers: {
-                    "Content-Type": "application/json",
-                    "X-Source": "nextjs",
-                },
-            },
         );
 
         if (response.status !== 202) {

@@ -52,7 +52,7 @@ const LoginDialog = ({
 
         try {
             dispatch(loginUser({ username, password }));
-            router.push("/user");
+            router.push(`/user`);
         } catch (err) {
             console.error(err);
         }

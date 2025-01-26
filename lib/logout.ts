@@ -8,10 +8,6 @@ function handle_server_logout() {
     if (token == null) {
         return;
     }
-    const data = {
-        token,
-    };
-    // try {
     //     const response = axiosInstance.post("/user/logout");
     // } catch (error) {
     //     console.log(error);

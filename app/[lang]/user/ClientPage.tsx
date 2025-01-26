@@ -44,43 +44,6 @@ const ClientPage = ({
     const [is_verified, setVerified] = useState<boolean>(false);
     const router = useRouter();
 
-    // async function verifyToken(){
-    //   const token = Cookies.get("access")
-    //   if(token==null){
-    //     localStorage.removeItem('token'); // Optionally clear token
-    //     window.location.href="/"
-    //     return false;
-    //   }
-    //   const data = {
-    //       token: token,
-    //   };
-    //   const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/account/verify_token`, {
-    //     method: 'POST',
-    //     headers: {
-    //       'Content-Type': 'application/json',
-    //       'Authorization': `Bearer ${token}`,
-    //     }, body: JSON.stringify(data),
-    //   });
-
-    //   try {
-    //     // If response status is not 202, redirect to home
-    //     if (response.status !== 202) {
-    //       localStorage.removeItem('token'); // Optionally clear token
-    //       window.location.href="/"
-    //       return false;
-    //     }else{
-    //       return true;
-    //     }
-
-    //     // Optionally handle valid token response here
-    //   } catch (error) {
-    //     console.error('Error verifying token:', error);
-    //     localStorage.removeItem('token'); // Optionally clear token
-    //     window.location.href="/"
-    //     return false;
-    //   }
-    // }
-
     useEffect(() => {
         if (!isLoading && !user) {
             router.push(`/${lang}`);
@@ -94,6 +57,7 @@ const ClientPage = ({
 
     useEffect(() => {
         if (user) {
+            router.push(`/${lang}/user`);
             setIsLoading(false);
         }
     }, [user]);
