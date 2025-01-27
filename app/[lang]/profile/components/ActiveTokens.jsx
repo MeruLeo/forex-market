@@ -60,56 +60,56 @@ export default function ActiveTokens({ dict }) {
             toast(error.message);
         }
     };
-    const fetch_tokens = async () => {
-        const token = Cookies.get("access");
-        setIsLoading(true);
-        await verifyToken(token);
-        try {
-            const response = await axiosInstance.post(
-                `${process.env.NEXT_PUBLIC_API_URL2}/get-user-tokens`,
-                {
-                    headers: {
-                        "X-Source": "nextjs",
-                    },
-                },
-            );
+    // const fetch_tokens = async () => {
+    //     const token = Cookies.get("access");
+    //     setIsLoading(true);
+    //     await verifyToken(token);
+    //     try {
+    //         const response = await axiosInstance.post(
+    //             `${process.env.NEXT_PUBLIC_API_URL2}/get-user-tokens`,
+    //             {
+    //                 headers: {
+    //                     "X-Source": "nextjs",
+    //                 },
+    //             },
+    //         );
 
-            if (response.status === 200) {
-                const data = response.data;
-                console.log(data);
-                setTokens(data);
-                setIsLoading(false);
-            }
-        } catch (error) {
-            console.log(error);
-            toast(error);
-            setIsLoading(false);
-        }
-    };
+    //         const data = response.data;
+    //         if (data.status === 200) {
+    //             console.log(data);
+    //             setTokens(data);
+    //             setIsLoading(false);
+    //         }
+    //     } catch (error) {
+    //         console.log(error);
+    //         toast(error);
+    //         setIsLoading(false);
+    //     }
+    // };
 
-    async function verifyToken(token) {
-        if (token == null) {
-            toast("No token found, redirecting to login.");
-            window.location.href = "/";
-            return;
-        }
-        try {
-            const response = await axiosInstance.post(
-                `${process.env.NEXT_PUBLIC_API_URL}/account/verify_token`,
-            );
+    // async function verifyToken(token) {
+    //     if (token == null) {
+    //         toast("No token found, redirecting to login.");
+    //         window.location.href = "/";
+    //         return;
+    //     }
+    //     try {
+    //         const response = await axiosInstance.post(
+    //             `${process.env.NEXT_PUBLIC_API_URL}/account/verify_token`,
+    //         );
 
-            if (response.status !== 202) {
-                toast("Invalid token, redirecting to login.");
-                Cookies.remove("access"); // Optionally clear token
-                window.location.href = "/";
-            }
-        } catch (error) {
-            console.error("Error verifying token:", error);
-            toast("Error verifying token, redirecting to login.");
-            Cookies.remove("access"); // Optionally clear token
-            window.location.href = "/";
-        }
-    }
+    //         if (response.status !== 202) {
+    //             toast("Invalid token, redirecting to login.");
+    //             Cookies.remove("access"); // Optionally clear token
+    //             window.location.href = "/";
+    //         }
+    //     } catch (error) {
+    //         console.error("Error verifying token:", error);
+    //         toast("Error verifying token, redirecting to login.");
+    //         Cookies.remove("access"); // Optionally clear token
+    //         window.location.href = "/";
+    //     }
+    // }
 
     return (
         <React.Fragment>

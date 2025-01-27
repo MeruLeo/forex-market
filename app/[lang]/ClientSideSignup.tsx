@@ -18,13 +18,10 @@ const ClientSideSignup = ({ dict, lang }: { dict: any; lang: string }) => {
 
     const fetchConf = async () => {
         try {
-            const response = await axiosInstance.get("/get-site-config", {
-                baseURL: process.env.NEXT_PUBLIC_API_URL2,
-                cache: "no-cache",
-            });
+            const response = await axiosInstance.get("/get-site-config/");
             const res = response.data;
             if (!res.ok) {
-                return;
+                return null;
             }
             setregistartion(res.registration);
         } catch (error) {

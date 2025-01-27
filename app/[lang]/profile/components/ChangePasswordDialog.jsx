@@ -46,14 +46,8 @@ const ChangePasswordModal = ({ dict }) => {
             const response = await axiosInstance.post(
                 `${process.env.NEXT_PUBLIC_API_URL2}/change-password`,
                 {
-                    token: Cookies.get("access"),
                     old_password: oldPassword,
                     new_password: newPassword,
-                },
-                {
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
                 },
             );
 

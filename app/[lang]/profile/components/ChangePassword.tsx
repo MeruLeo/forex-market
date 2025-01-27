@@ -30,11 +30,6 @@ const ChangePasswordModal = () => {
                     old_password: oldPassword,
                     new_password: newPassword,
                 },
-                {
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                },
             );
 
             if (response.status === 200) {

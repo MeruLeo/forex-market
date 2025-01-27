@@ -24,9 +24,8 @@ export function LoginFormDemo({ dict, lang }: { dict: any; lang: any }) {
 
     useEffect(() => {
         if (success) {
-            router.push(`/${lang}/profile`);
-            // console.log(`/${lang}/user`);
-            // dispatch(resetState());
+            router.push(`/${lang}/user`);
+            dispatch(resetState());
         }
     }, [success, lang, router, dispatch]);
 

@@ -60,7 +60,6 @@ const TradeCard = ({ trade, dict, idx }) => {
 
         try {
             const data = {
-                token: Cookies.get("access"),
                 symbol: symbol_id,
                 valume: valume,
                 ticket: ticket,
@@ -71,7 +70,7 @@ const TradeCard = ({ trade, dict, idx }) => {
             );
 
             const res = response.data;
-            if (!response.ok) {
+            if (!res.ok) {
                 toast(res.error);
                 setSendingClose(false);
                 return;

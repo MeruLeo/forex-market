@@ -49,29 +49,24 @@ const ClientPayment = ({ dict }: { dict: any }) => {
             const response = await axiosInstance.post(
                 "/zarinpal/payment/request/",
                 {
-                    token: Cookies.get("access"),
                     amount: amount,
                     bank_number: cardNumber,
                 },
             );
 
             const res = response.data;
-            if (response.ok) {
+            if (res.ok) {
                 setIsLoading(false);
                 router.push(res.url);
                 return;
             }
-            if (
-                response.status == 400 ||
-                response.status == 401 ||
-                response.status == 500
-            ) {
+            if (res.status == 400 || res.status == 401 || res.status == 500) {
                 setIsLoading(false);
                 toast(res.error);
                 return;
             }
 
-            if (!response.ok) {
+            if (!response) {
                 setIsLoading(false);
                 toast(res.error);
                 return;

@@ -9,8 +9,8 @@ import axiosInstance from "@/utils/axiosInstance";
 const AppContext = createContext<any>(undefined);
 
 export function AppWrapper({ children }: { children: React.ReactNode }) {
-    let [user, setUser] = useState(getUserFromToken());
-    let [refreshFailCount, setRefreshFailCount] = useState(0);
+    const [user, setUser] = useState(getUserFromToken());
+    const [refreshFailCount, setRefreshFailCount] = useState(0);
     const router = useRouter();
     useEffect(() => {
         const checkToken = async () => {

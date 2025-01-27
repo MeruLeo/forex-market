@@ -47,16 +47,10 @@ const CopyTrade = ({ dict, symbols }) => {
 
     const handleRemoveCopyTrade = async () => {
         setIs_loading(true);
-        const token = Cookies.get("access");
 
         try {
             const response = await axiosInstance.post(
                 `${process.env.NEXT_PUBLIC_API_URL2}/remove-copy-from`,
-                {
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                },
             );
 
             if (response.status === 200) {
@@ -138,7 +132,6 @@ const CopyTrade = ({ dict, symbols }) => {
 
     const getCopyFrom = async () => {
         setIs_loading(true);
-        const token = Cookies.get("access");
         try {
             const response = await axiosInstance.post("/get-copy-from");
 

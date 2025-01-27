@@ -53,37 +53,6 @@ export default function ProfilePage({
     );
     const [loading, setLoading] = useState(true);
 
-    const router = useRouter();
-
-    async function verifyToken(token: string | null) {
-        if (token == null) {
-            toast("Invalid token, redirecting to login.");
-            Cookies.remove("access"); // Optionally clear token
-            router.push("/");
-            return;
-        }
-        const response = await axiosInstance.post(
-            `${process.env.NEXT_PUBLIC_API_URL}/account/verify_token`,
-        );
-
-        try {
-            // If response status is not 202, redirect to home
-            if (response.status !== 202) {
-                toast("Invalid token, redirecting to login.");
-                Cookies.remove("access"); // Optionally clear token
-                router.push("/");
-                return;
-            }
-
-            // Optionally handle valid token response here
-        } catch (error) {
-            console.error("Error verifying token:", error);
-            toast("Error verifying token, redirecting to login.");
-            Cookies.remove("access"); // Optionally clear token
-            router.push("/");
-        }
-    }
-
     const handleChangeTime = () => {
         let startTime = null;
         let endTime = null;
