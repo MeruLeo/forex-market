@@ -115,7 +115,7 @@ const Wallet = ({ dict }) => {
     const getWallet = async () => {
         setIs_loading(true);
         try {
-            const response = await axiosInstance.post("/user-wallet", {});
+            const response = await axiosInstance.post("/user-wallet/");
 
             const data = response.data;
             setWalletAmount(data.amount.toFixed(2));

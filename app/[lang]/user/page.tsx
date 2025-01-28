@@ -16,7 +16,7 @@ export default async function Home({
     async function getSiteTitle() {
         try {
             const response = await axiosInstance.get(
-                `${process.env.NEXT_PUBLIC_API_URL2}/get-site-config`,
+                `${process.env.NEXT_PUBLIC_API_URL2}/get-site-config/`,
                 {
                     headers: {
                         "Cache-Control": "no-cache",

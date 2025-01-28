@@ -18,10 +18,10 @@ const ClientSideSignup = ({ dict, lang }: { dict: any; lang: string }) => {
 
     const fetchConf = async () => {
         try {
-            const response = await axiosInstance.get("/get-site-config/");
+            const response = await axiosInstance.get("/get-site-config");
             const res = response.data;
             if (!res.ok) {
-                return null;
+                return;
             }
             setregistartion(res.registration);
         } catch (error) {
@@ -50,16 +50,20 @@ const ClientSideSignup = ({ dict, lang }: { dict: any; lang: string }) => {
             dir={lang === "en" ? "ltr" : "rtl"}
             className="flex flex-row w-full h-full relative"
         >
-            {/* <div className={`z-0 absolute sm:relative bg-[url("/signupLight.jpg")] dark:bg-[url("/signupDark.jpg")]
-                w-full h-screen pb-10 flex flex-col items-start justify-end bg-cover sm:bg-cover bg-no-repeat`}>
-                <div className={`${!user && 'hidden sm:block'} flex m-4`}>
+            {/* <div
+                className={`z-0 absolute sm:relative bg-[url("/signupLight.jpg")] dark:bg-[url("/signupDark.jpg")]
+                w-full h-screen pb-10 flex flex-col items-start justify-end bg-cover sm:bg-cover bg-no-repeat`}
+            >
+                <div className={`${!user && "hidden sm:block"} flex m-4`}>
                     <h1 className="max-w-96 text-lg leading-relaxed">
                         <Quote className="w-3 h-3 inline mb-2 rotate-180" />
                         {dict.quote}
                         <Quote className="w-3 h-3 inline mb-2" />
                     </h1>
                 </div>
-                <p className={`${!user && 'hidden sm:block'} mx-4`}>- {dict.writer} <small>{dict.book}</small></p>
+                <p className={`${!user && "hidden sm:block"} mx-4`}>
+                    - {dict.writer} <small>{dict.book}</small>
+                </p>
             </div> */}
             <div className="z-10 w-full h-screen flex flex-col sm:flex-row items-center justify-center">
                 <div
