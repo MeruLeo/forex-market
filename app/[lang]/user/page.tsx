@@ -7,6 +7,8 @@ import {
 } from "@/lib/dictionary";
 import ClientPage from "./ClientPage";
 import axiosInstance from "@/utils/axiosInstance";
+import axios from "axios";
+import Cookies from "js-cookie";
 
 export default async function Home({
     params: { lang },
@@ -15,11 +17,13 @@ export default async function Home({
 }) {
     async function getSiteTitle() {
         try {
-            const response = await axiosInstance.get(
-                `${process.env.NEXT_PUBLIC_API_URL2}/get-site-config/`,
+            const token = Cookies.get("access");
+            const response = await axios.get(
+                `${process.env.NEXT_PUBLIC_API_URL2}/get-site-config`,
                 {
                     headers: {
                         "Cache-Control": "no-cache",
+                        Authorization: `Bearer ${token}`,
                     },
                 },
             );

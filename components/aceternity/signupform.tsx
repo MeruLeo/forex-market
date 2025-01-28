@@ -21,7 +21,7 @@ import axios from "axios";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/redux/store";
-import { signupUser } from "@/redux/slices/registerSlice";
+import { SignupProps, signupUser } from "@/redux/slices/registerSlice";
 
 export function SignupFormDemo({ dict, lang }: { dict: any; lang: string }) {
     const dispatch = useDispatch<AppDispatch>();
@@ -66,6 +66,12 @@ export function SignupFormDemo({ dict, lang }: { dict: any; lang: string }) {
         }
     }, [searchParams]);
 
+    useEffect(() => {
+        if (user) {
+            router.push(`${lang}/user`);
+        }
+    }, [user, router, lang]);
+
     const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         setValues({
             ...values,
@@ -97,7 +103,9 @@ export function SignupFormDemo({ dict, lang }: { dict: any; lang: string }) {
     }, []);
     const fetchConf = async () => {
         try {
-            const response = await axiosInstance.get("/get-site-config");
+            const response = await axiosInstance.get(
+                `${process.env.NEXT_PUBLIC_API_URL2}/get-site-terms`,
+            );
 
             const res = response.data;
             setNeedSmsVerify(res.sms_verification);
@@ -116,7 +124,7 @@ export function SignupFormDemo({ dict, lang }: { dict: any; lang: string }) {
                 // onClick: () => push(`/profile?id=${user.id}`),
                 onClick: () => {
                     // Use Link to create a navigable link
-                    <Link href={`/${lang}/user`}>{dict.start}</Link>;
+                    <Link href={`/${lang}/user`} />;
                 },
             },
         });
@@ -127,35 +135,20 @@ export function SignupFormDemo({ dict, lang }: { dict: any; lang: string }) {
 
         const regex = /^09\d{9}$/;
 
-        const username = (
-            document.getElementById("username2") as HTMLInputElement
-        ).value;
-        const real_name = (
-            document.getElementById("real_name") as HTMLInputElement
-        ).value;
-        const phone_number = (
-            document.getElementById("phone") as HTMLInputElement
-        ).value;
-        const bank_number = (
-            document.getElementById("bank_number") as HTMLInputElement
-        ).value;
-        const password = (
-            document.getElementById("password2") as HTMLInputElement
-        ).value;
-        const password2 = (
-            document.getElementById("password22") as HTMLInputElement
-        ).value;
-        // const referer = (document.getElementById('refer') as HTMLInputElement).value;
+        const getInputValue = (id: string): string =>
+            (document.getElementById(id) as HTMLInputElement).value;
 
-        console.log(username);
+        const username = getInputValue("username2");
+        const real_name = getInputValue("real_name");
+        const phone_number = getInputValue("phone");
+        const bank_number = getInputValue("bank_number");
+        const password = getInputValue("password2");
+        const password2 = getInputValue("password22");
 
-        if (validatePhone) {
-            if (!regex.test(phone_number)) {
-                setErrorPhone2(dict.signup.errors.phone_format);
-                return;
-            }
+        if (validatePhone && !regex.test(phone_number)) {
+            setErrorPhone2(dict.signup.errors.phone_format);
+            return;
         }
-
         if (username.length < 3) {
             setErrorUser2(dict.login.errors.small_username);
             return;
@@ -172,93 +165,137 @@ export function SignupFormDemo({ dict, lang }: { dict: any; lang: string }) {
             setErrorp12(dict.signup.errors.password_length);
             return;
         }
-        if (password != password2) {
+        if (password !== password2) {
             setErrorp22(dict.signup.errors.password_repeat);
             return;
         }
 
         setIsLoading2(true);
-        // Prepare the data to send
-        const data = {
+
+        const data: SignupProps = {
             username,
             real_name,
             phone_number,
             bank_number,
             password,
-            referralCode,
-            // referer:referer,
         };
+
+        if (referralCode) {
+            data.referralCode = referralCode;
+        }
+
         try {
-            // const response = await axiosInstance.post(
-            //     `${process.env.NEXT_PUBLIC_API_URL}/account/signup`,
-            //     data,
-            // );
+            const response = await dispatch(signupUser(data)).unwrap();
 
-            const response = await dispatch(signupUser({ data })).unwrap();
-
-            if (success) {
-                const responseData = response.data;
-                setPhone(responseData.phone_number);
-                setErrorUser2(null);
-                setErrorReal_name(null);
-                setErrorPhone2(null);
-                setErrorp12(null);
-                setErrorp22(null);
+            if (response.phone_number) {
+                setPhone(response.phone_number);
+                clearErrors();
 
                 if (needSmsVerify) {
                     setOpenDialog(true);
+                    console.log(response.code);
                 } else {
                     toast(dict.signup.success);
-                    setTimeout(() => {
-                        window.location.reload();
-                    }, 2000);
-
-                    const Logindata = {
-                        phone_number: phone_number,
-                        password: password,
-                    };
-
-                    try {
-                        const loginResponse = await axios.post(
-                            `${process.env.NEXT_PUBLIC_API_URL}/token/`,
-                            Logindata,
-                        );
-
-                        if (loginResponse.status === 200) {
-                            const token = loginResponse.data;
-                            setUser(token);
-                            Cookies.set("access", token);
-                            openToast();
-                        } else {
-                            const errorData = loginResponse.data;
-                            Cookies.remove("access");
-                            setErrorUser2(
-                                errorData.username || "Login failed.",
-                            );
-                        }
-                    } catch (error) {
-                        console.error("Login Error:", error);
-                        Cookies.remove("access");
-                        setError2("An unexpected error occurred during login.");
-                        toast("An unexpected error occurred during login.");
-                    }
+                    await handleAutoLogin(response.phone_number, password);
                 }
-            } else {
-                const errorData = response.data;
-                Cookies.remove("access");
-
-                setErrorUser2(errorData.username || null);
-                setErrorPhone2(errorData.phone_number || null);
-                toast(errorData.message || "Signup failed.");
             }
-        } catch (error) {
+        } catch (error: any) {
             console.error("Signup Error:", error);
-            Cookies.remove("access");
-            setError2("An unexpected error occurred during signup.");
-            toast("An unexpected error occurred during signup.");
+            if (typeof error === "object" && error !== null) {
+                Object.entries(error).forEach(([field, messages]) => {
+                    switch (field) {
+                        case "username":
+                            setErrorUser2(
+                                Array.isArray(messages)
+                                    ? messages[0]
+                                    : messages,
+                            );
+                            break;
+                        case "real_name":
+                            setErrorReal_name(
+                                Array.isArray(messages)
+                                    ? messages[0]
+                                    : messages,
+                            );
+                            break;
+                        case "phone_number":
+                            setErrorPhone2(
+                                Array.isArray(messages)
+                                    ? messages[0]
+                                    : messages,
+                            );
+                            break;
+                        case "password":
+                            setErrorp12(
+                                Array.isArray(messages)
+                                    ? messages[0]
+                                    : messages,
+                            );
+                            break;
+                        default:
+                            setError2(
+                                Array.isArray(messages)
+                                    ? messages[0]
+                                    : messages,
+                            );
+                    }
+                });
+            } else {
+                setError2("An unexpected error occurred during signup.");
+            }
+            toast(dict.signup.error);
         } finally {
             setIsLoading2(false);
         }
+    };
+
+    const clearErrors = () => {
+        setErrorUser2(null);
+        setErrorReal_name(null);
+        setErrorPhone2(null);
+        setErrorp12(null);
+        setErrorp22(null);
+    };
+
+    const handleSignupError = (errorData: any) => {
+        Cookies.remove("access");
+        setErrorUser2(errorData.username || null);
+        setErrorPhone2(errorData.phone_number || null);
+        toast(errorData.message || "Signup failed.");
+    };
+
+    const handleUnexpectedError = (action: "signup" | "login") => {
+        Cookies.remove("access");
+        const message = `An unexpected error occurred during ${action}.`;
+        setError2(message);
+        toast(message);
+    };
+
+    const handleAutoLogin = async (phone_number: string, password: string) => {
+        try {
+            const loginResponse = await axios.post(
+                `${process.env.NEXT_PUBLIC_API_URL}/token/`,
+                { phone_number, password },
+            );
+
+            if (loginResponse.status === 200) {
+                const token = loginResponse.data;
+                setUser(token);
+                Cookies.set("access", token);
+                openToast();
+                router.push(`${lang}/user`);
+            } else {
+                handleLoginError(loginResponse.data);
+            }
+        } catch (error) {
+            console.error("Login Error:", error);
+            handleUnexpectedError("login");
+        }
+    };
+
+    const handleLoginError = (errorData: any) => {
+        Cookies.remove("access");
+        setErrorUser2(errorData.username || "Login failed.");
     };
 
     const handleTerms = () => {
@@ -268,6 +305,7 @@ export function SignupFormDemo({ dict, lang }: { dict: any; lang: string }) {
     const handlePhoneVerification = async (e: any) => {
         e.preventDefault();
         if (!values.textmask) {
+            setError2(dict.signup.errors.code_required);
             return;
         }
         const data = {
@@ -277,23 +315,27 @@ export function SignupFormDemo({ dict, lang }: { dict: any; lang: string }) {
         try {
             const response = await axiosInstance.post(
                 `${process.env.NEXT_PUBLIC_API_URL}/account/verify`,
+                data,
             );
+            console.log(response);
 
-            if (response.status === 200) {
-                setUser(response);
-                const token = response.data;
-                Cookies.set("access", token);
+            if (response.status === 201) {
+                setUser(response.data);
+                Cookies.set("access", response.data.token);
                 openToast();
-            } else {
-                const errorData = response.data;
-                Cookies.remove("access");
-                if (errorData.username) {
-                    setErrorUser2(errorData.username);
-                }
+                router.push(`${lang}/user`);
             }
         } catch (error: any) {
             Cookies.remove("access");
-            setError2(error.message);
+            if (error.response && error.response.status === 409) {
+                if (error.response.data.error === "wrong code") {
+                    setError2(dict.signup.errors.wrong_code);
+                } else {
+                    setError2(dict.signup.errors.try_again_later);
+                }
+            } else {
+                setError2(dict.signup.errors.unexpected);
+            }
         }
     };
 
@@ -304,10 +346,10 @@ export function SignupFormDemo({ dict, lang }: { dict: any; lang: string }) {
             </h2>
 
             <form
-                className="mt-8 mb-2 grid grid-cols-2"
+                className="mt-8 w-full flex justify-center items-center mb-2 flex-col grid-cols-2"
                 onSubmit={handleSubmit2}
             >
-                <div className="col-span-2 flex flex-col md:flex-row space-y-2 md:space-y-0 md:space-x-2 mb-4">
+                <div className="col-span-2 flex w-full flex-col md:flex-row space-y-2 md:space-y-0 md:space-x-2 mb-4">
                     <LabelInputContainer>
                         <Label htmlFor="username2">
                             {dict.signup.username}
@@ -414,7 +456,7 @@ export function SignupFormDemo({ dict, lang }: { dict: any; lang: string }) {
                     />
                 </div>
 
-                <div className="col-span-2 flex items-center space-x-2 mb-3">
+                <div className="col-span-2 w-f flex items-center space-x-2 mb-3">
                     <Checkbox id="terms" onCheckedChange={handleTerms} />
                     <label
                         htmlFor="terms"
@@ -438,7 +480,7 @@ export function SignupFormDemo({ dict, lang }: { dict: any; lang: string }) {
                 )}
 
                 <button
-                    className="col-span-2 bg-gradient-to-br relative group/btn from-black dark:from-zinc-900 dark:to-zinc-900 to-neutral-600 block dark:bg-zinc-800 w-full text-white rounded-md h-10 font-medium shadow-[0px_1px_0px_0px_#ffffff40_inset,0px_-1px_0px_0px_#ffffff40_inset] dark:shadow-[0px_1px_0px_0px_var(--zinc-800)_inset,0px_-1px_0px_0px_var(--zinc-800)_inset]"
+                    className="bg-gradient-to-br rounded-full relative group/btn bg-primary transition-all duration-200 hover:scale-95 block w-full text-white h-10 font-medium shadow text-center"
                     type="submit"
                     // disabled={isLoading2 || !isCaptchaVerified}
                 >

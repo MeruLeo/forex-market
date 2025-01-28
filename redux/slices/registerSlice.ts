@@ -8,6 +8,15 @@ interface SignupState {
     success: boolean;
 }
 
+export interface SignupProps {
+    username: string;
+    real_name: string;
+    phone_number: string;
+    bank_number: string;
+    password: string;
+    referralCode?: string | string[] | null;
+}
+
 const initialState: SignupState = {
     loading: false,
     error: null,
@@ -16,42 +25,15 @@ const initialState: SignupState = {
 
 export const signupUser = createAsyncThunk(
     "auth/signupUser",
-    async (
-        {
-            username,
-            real_name,
-            phone_number,
-            bank_number,
-            password,
-            password2,
-            referralCode,
-        }: {
-            username: string;
-            real_name: string;
-            phone_number: string;
-            bank_number: string;
-            password: string;
-            password2: string;
-            referralCode?: string;
-        },
-        thunkAPI,
-    ) => {
+    async (data: SignupProps, thunkAPI) => {
         try {
-            const response = await axiosInstance.post("/account/signup", {
-                username,
-                real_name,
-                phone_number,
-                bank_number,
-                password,
-                password2,
-                referralCode,
-            });
-
+            const response = await axiosInstance.post("/account/signup", data);
             return response.data;
         } catch (error: any) {
-            return thunkAPI.rejectWithValue(
-                error.response?.data?.message || "Signup failed",
-            );
+            if (error.response && error.response.status === 409) {
+                return thunkAPI.rejectWithValue(error.response.data);
+            }
+            return thunkAPI.rejectWithValue("Signup failed");
         }
     },
 );

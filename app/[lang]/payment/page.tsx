@@ -5,6 +5,8 @@ import { getDictionary_payment } from "@/lib/dictionary";
 import React from "react";
 import ClientPayment from "./ClientPayment";
 import axiosInstance from "@/utils/axiosInstance";
+import axios from "axios";
+import Cookies from "js-cookie";
 
 export default async function Payment({
     params: { lang },
@@ -13,10 +15,17 @@ export default async function Payment({
 }) {
     async function getSiteTitle() {
         try {
-            const res = await axiosInstance.get("/get-site-config", {
-                headers: { "Cache-Control": "no-cache" },
-            });
-            const resData = res.data;
+            const token = Cookies.get("access");
+            const response = await axios.get(
+                `${process.env.NEXT_PUBLIC_API_URL2}/get-site-config`,
+                {
+                    headers: {
+                        "Cache-Control": "no-cache",
+                        Authorization: `Bearer ${token}`,
+                    },
+                },
+            );
+            const resData = response.data;
             return resData;
         } catch {
             return "Meta Copy";

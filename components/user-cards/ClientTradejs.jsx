@@ -28,6 +28,7 @@ import { Grid2 } from "@mui/material";
 import IconButton from "@mui/material/IconButton";
 import Cookies from "js-cookie";
 import axiosInstance from "@/utils/axiosInstance";
+import axios from "axios";
 
 function calculateTotalProfit(items) {
     return items.reduce((total, item) => {
@@ -108,19 +109,26 @@ const ClientTrade = ({ dict, trades, stat, pending, symbols }) => {
             setIsLoading(false);
         }
     };
-    const fetchConf = () => {
+    const fetchConf = async () => {
         try {
-            fetch(`${process.env.NEXT_PUBLIC_API_URL2}/get-site-config`, {
-                cache: "no-cache",
-            }).then((response) => {
-                if (response.ok) {
-                    response.json().then((data) => {
-                        setShowWalletIcon(data.wallet_is_enable);
-                    });
-                } else {
-                    toast("Failed to get config.");
-                }
-            });
+            const token = Cookies.get("access");
+            const response = await axios.get(
+                `${process.env.NEXT_PUBLIC_API_URL2}/get-site-config`,
+                {
+                    headers: {
+                        "Cache-Control": "no-cache",
+                        Authorization: `Bearer ${token}`,
+                    },
+                },
+            );
+
+            const res = response.data;
+
+            if (!res.status === 200) {
+                toast("Failed to get config.");
+                return;
+            }
+            setShowWalletIcon(res.wallet_is_enable);
         } catch (error) {
             console.error(error);
         }

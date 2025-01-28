@@ -33,7 +33,7 @@ export default async function Terms({
     const fetchTerm = async () => {
         try {
             const response = await axiosInstance.get(
-                `${process.env.NEXT_PUBLIC_API_URL2}/get-site-terms`,
+                `${process.env.NEXT_PUBLIC_API_URL}/get-site-terms`,
                 {
                     headers: {
                         "Cache-Control": "no-cache",

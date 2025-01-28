@@ -1,14 +1,19 @@
 import axiosInstance from "@/utils/axiosInstance";
 import { NextResponse } from "next/server";
-export async function POST(req: Request) {
-    const url = "https://bitpay.ir/payment-test/gateway-send";
-    try {
-        const formData = new FormData(await req.formData());
 
+export async function POST(req: Request) {
+    const url = "https://bitpay.ir/payment-test/gateway-result-second";
+
+    try {
+        // داده‌ها را مستقیماً از req.formData() بگیرید
+        const formData = await req.formData(); // req.formData خودش یک FormData است
+
+        // ارسال درخواست با Axios
         const response = await axiosInstance.post(url, formData, {
             headers: { "Content-Type": "multipart/form-data" },
         });
 
+        // بررسی وضعیت پاسخ
         if (response.status === 200) {
             const data = response.data;
 

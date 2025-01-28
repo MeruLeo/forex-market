@@ -5,12 +5,15 @@ export async function POST(req: Request) {
     const url = "https://bitpay.ir/payment-test/gateway-result-second";
 
     try {
-        const formData = new FormData(await req.formData()); // Parse the incoming FormData request body
+        // داده‌ها را مستقیماً از req.formData() بگیرید
+        const formData = await req.formData(); // req.formData خودش یک FormData است
 
+        // ارسال درخواست با Axios
         const response = await axiosInstance.post(url, formData, {
             headers: { "Content-Type": "multipart/form-data" },
         });
 
+        // بررسی وضعیت پاسخ
         if (response.status === 200) {
             const data = response.data;
 

@@ -8,6 +8,8 @@ import { useRouter, useSearchParams } from "next/navigation";
 import ClientLocaleSwitcher from "@/components/ClientLocaleSwitcher2";
 import ReCAPTCHA from "react-google-recaptcha";
 import axiosInstance from "@/utils/axiosInstance";
+import axios from "axios";
+import Cookies from "js-cookie";
 
 const ClientSideSignup = ({ dict, lang }: { dict: any; lang: string }) => {
     const { user } = useAppContext();
@@ -18,7 +20,16 @@ const ClientSideSignup = ({ dict, lang }: { dict: any; lang: string }) => {
 
     const fetchConf = async () => {
         try {
-            const response = await axiosInstance.get("/get-site-config");
+            const token = Cookies.get("access");
+            const response = await axios.get(
+                `${process.env.NEXT_PUBLIC_API_URL2}/get-site-config`,
+                {
+                    headers: {
+                        "Cache-Control": "no-cache",
+                        Authorization: `Bearer ${token}`,
+                    },
+                },
+            );
             const res = response.data;
             if (!res.ok) {
                 return;
@@ -73,24 +84,17 @@ const ClientSideSignup = ({ dict, lang }: { dict: any; lang: string }) => {
                 </div>
                 <div className="mx-2 py-1 w-full max-h-[90vh] overflow-y-auto overflow-x-hidden flex flex-col items-center ">
                     <div className="max-w-md w-full mx-auto rounded-none md:rounded-2xl p-4 md:p-8 shadow-input bg-white dark:bg-black">
-                        <SignupFormDemo dict={dict} lang={lang} />
-                        {/* {!user ? (
-                            login ? (
-                                <LoginFormDemo dict={dict} lang={lang} />
-                            ) : (
-                            )
+                        {/* نمایش فرم‌ها بر اساس وضعیت login */}
+                        {login ? (
+                            <LoginFormDemo dict={dict} lang={lang} />
                         ) : (
-                            <div className="flex flex-col items-center justify-center w-full h-screen text-2xl">
-                                <p className="">{dict.form.logged} </p>
-                            </div>
-                        )} */}
+                            <SignupFormDemo dict={dict} lang={lang} />
+                        )}
                         {!user && (
-                            <div
-                                className={`w-full flex items-center justify-center ${registartion && login ? "" : !login ? "" : "hidden"}`}
-                            >
+                            <div className="mt-4 w-full flex items-center justify-center">
                                 <button
                                     onClick={handleFormChange}
-                                    className="hover:text-sky-400 relative group/btn px-4 rounded-md h-10 font-medium dark:"
+                                    className=" text-blue-500 px-6 py-2 rounded-md hover:text-blue-600 transition"
                                 >
                                     {login ? dict.signup.btn2 : dict.login.btn2}
                                 </button>

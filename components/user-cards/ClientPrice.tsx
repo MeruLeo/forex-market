@@ -8,6 +8,7 @@ import {
 import { DragDropContext, Droppable, Draggable, DropResult } from '@hello-pangea/dnd';
 import SetLeverage from "@/components/SetLeverage";
 import CopyTrade from "@/components/CopyTrade";
+import Cookies from "js-cookie"
 
 // import CalculateSummary from '@/components/user-cards/CalculateSummary'
 
@@ -27,19 +28,24 @@ const ClientPrice = ({ dict, symbols, trades,orders }: { dict: any; symbols: Arr
       });
     });
   }, [symbols]);
-  const fetchConf = () => {
+  const fetchConf = async () => {
     try {
-      fetch(`${process.env.NEXT_PUBLIC_API_URL2}/get-site-config`, {cache: 'no-cache'}).then(response=>{
-        if (response.ok) {
-            response.json().then(data=>{
-                setShowLeverageIcon(data.show_leverage_change_icon)
-                setShowCopyradeIcon(data.show_copy_trade_icon)
-            });
-
-          } else {
-            
-          }
-      })
+      const token = Cookies.get("access");
+      const response = await axios.get(
+          `${process.env.NEXT_PUBLIC_API_URL2}/get-site-config`,
+          {
+              headers: {
+                  "Cache-Control": "no-cache",
+                  Authorization: `Bearer ${token}`,
+              },
+          },
+      );
+     
+      const data = response.data;
+      if (response.status === 200) {
+        setShowLeverageIcon(data.show_leverage_change_icon);
+        setShowCopyradeIcon(data.show_copy_trade_icon);
+      }
     } catch (error) {
       console.error(error);
     }
@@ -255,6 +261,7 @@ interface ItemInt {
   orders: Array<any>;
 }
 import Divider from '@mui/material/Divider';
+import axios from 'axios';
 
 const Item = ({ item, dict, trades , orders}: ItemInt) => {
   const [isOpen, setIsOpen] = useState(false);

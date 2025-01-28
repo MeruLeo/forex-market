@@ -13,7 +13,7 @@ import Cookies from "js-cookie";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/redux/store";
 import { loginUser, resetState } from "@/redux/slices/loginSlice";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 
 const LoginDialog = ({
     isOpen,
@@ -23,7 +23,8 @@ const LoginDialog = ({
     onclose: any;
 }) => {
     const router = useRouter();
-    const { locale } = router;
+    const pathname = usePathname();
+    const locale = pathname.split("/")[1];
 
     const dispatch = useDispatch<AppDispatch>();
     const { error, success, loading } = useSelector(

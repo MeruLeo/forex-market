@@ -29,6 +29,11 @@ import SaveAltIcon from "@mui/icons-material/SaveAlt";
 import Calendar from "@/components/user-cards/calendar";
 import DatePicker, { DateObject, Value } from "react-multi-date-picker";
 import Cookies from "js-cookie";
+import { FaFolderOpen } from "react-icons/fa6";
+import { DatePickerWithRange } from "../ui/DateRange";
+import { toast } from "sonner";
+import axios from "axios";
+import axiosInstance from "@/utils/axiosInstance";
 
 interface Trade {
     commission?: number;
@@ -70,7 +75,7 @@ const ClientHistory = ({
     const [date2, setDate2] = useState<string>("");
     const [search, setSearch] = useState<string>("");
     const [accountType, setAccountType] = useState<string>("Hedging");
-    const [trades, setTrades] = useState([]);
+    const [trades, setTrades] = useState<Trade[]>([]);
 
     const handleDateUpdate = (
         newDate1: string,
@@ -83,9 +88,15 @@ const ClientHistory = ({
     };
     const fetchConf = async () => {
         try {
+            const token = Cookies.get("access");
             const response = await axios.get(
                 `${process.env.NEXT_PUBLIC_API_URL2}/get-site-config`,
-                { headers: { "Cache-Control": "no-cache" } },
+                {
+                    headers: {
+                        "Cache-Control": "no-cache",
+                        Authorization: `Bearer ${token}`,
+                    },
+                },
             );
 
             if (response.status !== 200) {
@@ -164,112 +175,39 @@ const ClientHistory = ({
     ];
 
     useEffect(() => {
+        type ApiResponse = { error: string } | Trade[];
+
         const get_trades = async () => {
             try {
                 const response = await axiosInstance.post(
                     `${process.env.NEXT_PUBLIC_API_URL}/mt5/user_trades`,
                     {
-                        token: Cookies.get("access"),
                         from_date: date1,
                         to_date: date2,
                         search: search,
                     },
                 );
 
-                if (response.status !== 200) {
-                    toast(response.data.error);
+                // مشخص کردن نوع داده‌ی response.data
+                const data: ApiResponse = response.data;
+
+                // بررسی وجود خطا
+                if ("error" in data || response.status !== 200) {
+                    toast("An unknown error occurred");
                     return;
                 }
 
-                const res = roundToTwoDecimals(response.data);
-                setTrades(res);
+                // در این مرحله، data قطعاً Trade[] است
+                const res = roundToTwoDecimals(data);
+                setTrades(res); // دیگر خطای never[] وجود ندارد
             } catch (error) {
                 toast(dict.history.errors.trade_error);
             }
         };
 
-        const get_deals = async () => {
-            try {
-                const response = await axiosInstance.post(
-                    `${process.env.NEXT_PUBLIC_API_URL}/mt5/user_deals`,
-                    {
-                        token: Cookies.get("access"),
-                        from_date: date1,
-                        to_date: date2,
-                        search: search,
-                    },
-                );
+        get_trades();
+    }, [date1, date2, search]);
 
-                if (response.status !== 200) {
-                    toast(response.data.error);
-                    return;
-                }
-
-                const res = roundToTwoDecimals(response.data);
-                setDeals(res);
-            } catch (error) {
-                toast(dict.history.errors.deal_error);
-            }
-        };
-
-        const get_orders = async () => {
-            try {
-                const response = await axiosInstance.post(
-                    `${process.env.NEXT_PUBLIC_API_URL}/mt5/user_orders`,
-                    {
-                        token: Cookies.get("access"),
-                        from_date: date1,
-                        to_date: date2,
-                        search: search,
-                    },
-                );
-
-                if (response.status !== 200) {
-                    toast(response.data.error);
-                    return;
-                }
-
-                setOrders(response.data);
-            } catch (error) {
-                toast(dict.history.errors.order_error);
-            }
-        };
-
-        const get_transactions = async () => {
-            try {
-                const response = await axiosInstance.post(
-                    `${process.env.NEXT_PUBLIC_API_URL}/zarinpal/transactions`,
-                    {
-                        token: Cookies.get("access"),
-                        from_date: date1,
-                        to_date: date2,
-                        search: search,
-                    },
-                );
-
-                if (response.status !== 200) {
-                    toast(response.data.error);
-                    return;
-                }
-
-                setTransactions(response.data);
-            } catch (error) {
-                toast(dict.history.errors.order_error);
-            }
-        };
-
-        const token = Cookies.get("access");
-        if (!token) {
-            toast("No token found, redirecting to login.");
-            window.location.href = "/";
-            return;
-        } else {
-            get_trades();
-            get_deals();
-            get_orders();
-            get_transactions();
-        }
-    }, [len_trades, len_pending, balance, date1, date2, search]);
     const [target, setTarget] = useState("trade");
     const [target_len, setTarget_len] = useState(trades.length);
     const [currentPage, setCurrentPage] = useState(1);
@@ -656,12 +594,6 @@ const HistoryTable = ({ items, headers, dict, isOrder }: ItemInt) => {
         </Table>
     );
 };
-
-import { FaFolderOpen } from "react-icons/fa6";
-import { DatePickerWithRange } from "../ui/DateRange";
-import { toast } from "sonner";
-import axios from "axios";
-import axiosInstance from "@/utils/axiosInstance";
 
 const Empty = ({ dict }: { dict: any }) => {
     return (
