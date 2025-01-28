@@ -73,17 +73,17 @@ const ClientSideSignup = ({ dict, lang }: { dict: any; lang: string }) => {
                 </div>
                 <div className="mx-2 py-1 w-full max-h-[90vh] overflow-y-auto overflow-x-hidden flex flex-col items-center ">
                     <div className="max-w-md w-full mx-auto rounded-none md:rounded-2xl p-4 md:p-8 shadow-input bg-white dark:bg-black">
-                        {!user ? (
+                        <SignupFormDemo dict={dict} lang={lang} />
+                        {/* {!user ? (
                             login ? (
                                 <LoginFormDemo dict={dict} lang={lang} />
                             ) : (
-                                <SignupFormDemo dict={dict} lang={lang} />
                             )
                         ) : (
                             <div className="flex flex-col items-center justify-center w-full h-screen text-2xl">
                                 <p className="">{dict.form.logged} </p>
                             </div>
-                        )}
+                        )} */}
                         {!user && (
                             <div
                                 className={`w-full flex items-center justify-center ${registartion && login ? "" : !login ? "" : "hidden"}`}
