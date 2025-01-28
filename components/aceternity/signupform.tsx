@@ -17,6 +17,7 @@ import ReCAPTCHA from "react-google-recaptcha";
 import Cookies from "js-cookie";
 import axiosInstance from "@/utils/axiosInstance";
 import axios from "axios";
+import { useRouter } from "next/router";
 
 export function SignupFormDemo({ dict, lang }: { dict: any; lang: string }) {
     const { user, setUser } = useAppContext();
@@ -40,6 +41,23 @@ export function SignupFormDemo({ dict, lang }: { dict: any; lang: string }) {
     const [values, setValues] = React.useState({
         textmask: "----",
     });
+    const [referralCode, setReferralCode] = React.useState<
+        string | string[] | null
+    >(null);
+
+    const router = useRouter();
+
+    React.useEffect(() => {
+        if (router.isReady) {
+            const ref = router.query.ref;
+            if (ref) {
+                setReferralCode(ref);
+                console.log("Referral Code:", ref);
+            } else {
+                console.log("No Referral Code Found");
+            }
+        }
+    }, [router.isReady, router.query]);
 
     const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         setValues({
