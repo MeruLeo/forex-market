@@ -8,6 +8,8 @@ import { useDispatch, useSelector } from "react-redux";
 import { loginUser, resetState } from "../../redux/slices/loginSlice";
 import { AppDispatch, RootState } from "../../redux/store";
 import { useRouter } from "next/navigation";
+import { useAppContext } from "@/context";
+import Cookies from "js-cookie";
 
 export function LoginFormDemo({ dict, lang }: { dict: any; lang: any }) {
     const router = useRouter();
@@ -16,6 +18,7 @@ export function LoginFormDemo({ dict, lang }: { dict: any; lang: any }) {
     const { loading, error, success } = useSelector(
         (state: RootState) => state.login,
     );
+    const { user, setUser } = useAppContext();
     const [isCaptchaVerified, setIsCaptchaVerified] = useState(false);
 
     const handleCaptchaChange = (value: string | null) => {
@@ -24,10 +27,14 @@ export function LoginFormDemo({ dict, lang }: { dict: any; lang: any }) {
 
     useEffect(() => {
         if (success) {
-            router.push(`/${lang}/user`);
+            // router.push(`/${lang}/user`);
+            const token = Cookies.get("access");
+            setUser(token);
             dispatch(resetState());
+        } else if (error) {
+            console.error(`Login error: ${error}`);
         }
-    }, [success, lang, router, dispatch]);
+    }, [success, error, lang, router, dispatch]);
 
     const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
@@ -45,6 +52,7 @@ export function LoginFormDemo({ dict, lang }: { dict: any; lang: any }) {
 
         try {
             dispatch(loginUser({ username: phone_number, password }));
+            // router.push(`/${lang}/user`);
         } catch (err) {
             console.error(err);
         }

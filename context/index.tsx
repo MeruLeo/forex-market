@@ -68,7 +68,7 @@ export function AppWrapper({ children }: { children: React.ReactNode }) {
         checkToken();
         const interval = setInterval(
             async () => {
-                const token = Cookies.get("access");
+                const token = Cookies.get("refresh");
 
                 if (!token) {
                     return;

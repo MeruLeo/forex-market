@@ -31,7 +31,7 @@ const ClientSideSignup = ({ dict, lang }: { dict: any; lang: string }) => {
                 },
             );
             const res = response.data;
-            if (!res.ok) {
+            if (res.status === 200) {
                 return;
             }
             setregistartion(res.registration);
