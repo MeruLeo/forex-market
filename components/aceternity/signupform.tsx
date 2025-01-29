@@ -67,10 +67,12 @@ export function SignupFormDemo({ dict, lang }: { dict: any; lang: string }) {
     }, [searchParams]);
 
     useEffect(() => {
-        if (user) {
-            router.push(`${lang}/user`);
+        if (success) {
+            // router.push(`${lang}/user`);
+            const token = Cookies.get("access");
+            setUser(token);
         }
-    }, [user, router, lang]);
+    }, [success, setUser, user]);
 
     const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         setValues({
@@ -191,12 +193,12 @@ export function SignupFormDemo({ dict, lang }: { dict: any; lang: string }) {
                 setPhone(response.phone_number);
                 clearErrors();
 
-                if (needSmsVerify) {
-                    setOpenDialog(true);
+                if (!needSmsVerify) {
                     console.log(response.code);
-                } else {
+                    setOpenDialog(true);
                     toast(dict.signup.success);
-                    await handleAutoLogin(response.phone_number, password);
+                } else {
+                    // await handleAutoLogin(response.phone_number, password);
                 }
             }
         } catch (error: any) {
@@ -271,11 +273,11 @@ export function SignupFormDemo({ dict, lang }: { dict: any; lang: string }) {
         toast(message);
     };
 
-    const handleAutoLogin = async (phone_number: string, password: string) => {
+    const handleAutoLogin = async (username: string, password: string) => {
         try {
             const loginResponse = await axios.post(
                 `${process.env.NEXT_PUBLIC_API_URL}/token/`,
-                { phone_number, password },
+                { username, password },
             );
 
             if (loginResponse.status === 200) {
@@ -313,17 +315,17 @@ export function SignupFormDemo({ dict, lang }: { dict: any; lang: string }) {
             code: values.textmask,
         };
         try {
-            const response = await axiosInstance.post(
-                `${process.env.NEXT_PUBLIC_API_URL}/account/verify`,
-                data,
-            );
-            console.log(response);
+            const response = await axiosInstance.post(`/account/verify`, data);
 
             if (response.status === 201) {
+                console.log(response);
                 setUser(response.data);
                 Cookies.set("access", response.data.token);
                 openToast();
                 router.push(`${lang}/user`);
+            } else {
+                console.log("error in verify code");
+                console.log(response);
             }
         } catch (error: any) {
             Cookies.remove("access");
